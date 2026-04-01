@@ -169,7 +169,7 @@
     </label>
     <ol>
       <li><input type="text" id="searchID" style="width: 400px;  margin-right: 5px;"
-          placeholder="Enter PIN/ZIP or city"><input type="button" value="Search" onclick="searchText()"
+          placeholder="Enter PIN/ZIP or city"><input type="button" id="searchButtonID" value="Search" onclick="searchText()"
           style="margin-right: 30px;"></li>
       <li><a onclick="showSection('post4rent')">Post for rent</a></li>
       <li>|</li>
@@ -199,7 +199,7 @@
     <!-- POST -->
     <div id="post4rent" class="section" style="text-align: start;">
       <h2><span style="text-decoration: underline;">Add Rental details</span></h2>
-      <form>
+      <form id="formId">
         <label>Address: </label>
         <input type="text" placeholder="Address" style="width: 400px;"><br>
 
@@ -248,6 +248,28 @@
     </div>
 
   </div>
+  <script>
+    document.getElementById("searchButtonID").addEventListener("keydown", function(event) {
+      if (event.key === "Enter") {
+        searchText();
+        // Default action (form submit) will happen automatically
+        console.log("Enter key pressed");
+      }
+    });
+
+    document.getElementById("searchID").addEventListener("keydown", function(event) {
+      if (event.key === "Enter") {
+        searchText();
+        // Default action (form submit) will happen automatically
+        console.log("Enter key pressed");
+      }
+    });
+
+    document.getElementById("formId").addEventListener("submit", function(e) {
+      e.preventDefault(); // remove this line if you want actual submission
+      console.log("Form submitted by Enter key");
+    });
+  </script>
 </body>
 
 </html>
