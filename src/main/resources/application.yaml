@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: starandcar
+
+  datasource:
+    url: jdbc:mariadb://localhost:3206/starandcardb?createDatabaseIfNotExist=true
+    username: root
+    password: root
+    driver-class-name: org.mariadb.jdbc.Driver
+
+  sql:
+    init:
+      mode: always
+
+logging:
+  level:
+    org.springframework.jdbc.core: TRACE
+    org.springframework.jdbc.core.StatementCreatorUtils: TRACE
