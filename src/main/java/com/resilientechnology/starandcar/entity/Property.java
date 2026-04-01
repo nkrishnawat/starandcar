@@ -9,6 +9,7 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 
 import java.math.BigInteger;
+import java.util.List;
 import java.util.Set;
 
 
@@ -22,7 +23,7 @@ public class Property {
 
     String address;
 
-    Set<Room> rooms;
+    List<Room> rooms;
 
     @Column("description")
     String description;

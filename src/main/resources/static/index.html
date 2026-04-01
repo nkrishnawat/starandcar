@@ -129,7 +129,7 @@
     function searchText() {
       const tbody = document.getElementById('table-body');
       showSection('results');
-      fetch('http://localhost:8080/property/zip/' + document.getElementById('searchID').value)
+      fetch('http://localhost:8080/property/search/' + document.getElementById('searchID').value)
         .then(response => response.json())
         .then(data => {
           console.log(data);
@@ -199,35 +199,35 @@
     <!-- POST -->
     <div id="post4rent" class="section" style="text-align: start;">
       <h2><span style="text-decoration: underline;">Add Rental details</span></h2>
-      <form id="formId">
+      <form id="formId" action="property/publish">
         <label>Address: </label>
-        <input type="text" placeholder="Address" style="width: 400px;"><br>
+        <input type="text" name="address" placeholder="Address" style="width: 400px;"><br>
 
         <label>Email: </label>
-        <input type="text" placeholder="Email" style="width: 300px;"><br>
+        <input type="text" name="email" placeholder="Email" style="width: 300px;"><br>
 
         <label>Phone No.: </label>
-        <input type="text" placeholder="Phone #" style="width: 300px;"><br>
+        <input type="text" name="phoneno" placeholder="Phone #" style="width: 300px;"><br>
 
         <label>Description: </label>
-        <input type="textarea" placeholder="Description" style="width: 400px; height: 10vh;"><br>
+        <input type="textarea" name="description" placeholder="Description" style="width: 400px; height: 10vh;"><br>
 
         <label>Notes: </label>
-        <input type="textarea" placeholder="Notes" style="width: 400px; height: 10vh;"><br>
+        <input type="textarea" name="notes" placeholder="Notes" style="width: 400px; height: 10vh;"><br>
 
         <label>Empty Rooms: </label>
-        <input type="number" placeholder="Empty #"><br>
+        <input type="number" name="count" placeholder="Empty #"><br>
 
         <label>Image #1: </label>
-        <input type="file" placeholder="Image 1"><br>
+        <input type="file" name="file" placeholder="Image 1"><br>
 
         <label>Image #2: </label>
-        <input type="file" placeholder="Image 2"><br>
+        <input type="file" name="file" placeholder="Image 2"><br>
 
         <label>Image #3: </label>
-        <input type="file" placeholder="Image 3"><br> <hr>
+        <input type="file" name="file" placeholder="Image 3"><br> <hr>
 
-        <button type="submit">- Post -</button>
+        <button type="submit">- Publish -</button>
       </form>
     </div>
 

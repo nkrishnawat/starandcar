@@ -5,8 +5,10 @@ import com.resilientechnology.starandcar.mapers.PropertyRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 public class PropertyRepository {
@@ -54,5 +56,53 @@ public class PropertyRepository {
                 new Object[]{zipPattern},
                 new PropertyRowMapper(jdbcTemplate)
         );
+    }
+
+    @Transactional
+    public boolean save(Property property) {
+
+        final String INSERT_PROPERTY = """
+        INSERT INTO PROPERTY 
+        (property_id, address, description, notes, contact_email, contact_phone_no)
+        VALUES (?, ?, ?, ?, ?, ?)
+    """;
+
+        final String INSERT_ROOM = """
+        INSERT INTO ROOM 
+        (room_id, property_id, image_url_s3)
+        VALUES (?, ?, ?)
+    """;
+
+        try {
+            // 1. Insert property
+            jdbcTemplate.update(INSERT_PROPERTY,
+                    property.getPropertyId(),
+                    property.getAddress(),
+                    property.getDescription(),
+                    property.getNotes(),
+                    property.getContactEmail(),
+                    property.getContactPhoneNo()
+            );
+
+            // 2. Insert rooms (batch for performance)
+            if (property.getRooms() != null && !property.getRooms().isEmpty()) {
+
+                jdbcTemplate.batchUpdate(
+                        INSERT_ROOM,
+                        property.getRooms(),
+                        property.getRooms().size(),
+                        (ps, room) -> {
+                            ps.setLong(1, room.getRoomId());
+                            ps.setLong(2, property.getPropertyId()); // enforce relation
+                            ps.setString(3, room.getImageUrlS3().stream().collect(Collectors.joining(", ")));
+                        }
+                );
+            }
+
+            return true;
+
+        } catch (Exception ex) {
+            throw new RuntimeException("Failed to save property with rooms", ex);
+        }
     }
 }
