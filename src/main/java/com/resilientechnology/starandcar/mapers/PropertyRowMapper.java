@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -33,7 +34,7 @@ public class PropertyRowMapper implements RowMapper<Property> {
         // Load rooms separately
         String roomSql = "SELECT room_id, property_id, is_ac, image_urls FROM room WHERE property_id = ?";
         Set<Room> rooms = new HashSet<>(jdbcTemplate.query(roomSql, new Object[]{property.getPropertyId()}, new RoomRowMapper(jdbcTemplate)));
-        property.setRooms(rooms);
+        property.setRooms(new ArrayList<>(rooms));
 
         return property;
     }

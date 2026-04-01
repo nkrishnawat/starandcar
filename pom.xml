@@ -11,7 +11,7 @@
 	<groupId>com.resilientechnology</groupId>
 	<artifactId>starandcar</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>STAR and CAR - Short Term Accommodation and Rentals and a CAR - What else you need </name>
 	<description>STAR and CAR - Short Term Accommodation and Rentals and a CAR - What else you need ?</description>
 	<url/>

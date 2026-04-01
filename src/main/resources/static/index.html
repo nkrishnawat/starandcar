@@ -110,6 +110,10 @@
       font-size: larger;
     }
 
+    textarea::placeholder {
+      color: #999; /* or something visible */
+    }
+
   </style>
   <script>
     function showSection(sectionId) {
@@ -199,7 +203,7 @@
     <!-- POST -->
     <div id="post4rent" class="section" style="text-align: start;">
       <h2><span style="text-decoration: underline;">Add Rental details</span></h2>
-      <form id="formId" action="property/publish">
+      <form id="formId" enctype="multipart/form-data">
         <label>Address: </label>
         <input type="text" name="address" placeholder="Address" style="width: 400px;"><br>
 
@@ -218,15 +222,11 @@
         <label>Empty Rooms: </label>
         <input type="number" name="count" placeholder="Empty #"><br>
 
-        <label>Image #1: </label>
-        <input type="file" name="file" placeholder="Image 1"><br>
+        <label>Images: </label>
+        <input type="file" name="files" multiple />
 
-        <label>Image #2: </label>
-        <input type="file" name="file" placeholder="Image 2"><br>
-
-        <label>Image #3: </label>
-        <input type="file" name="file" placeholder="Image 3"><br> <hr>
-
+        <br><hr>
+        
         <button type="submit">- Publish -</button>
       </form>
     </div>
@@ -241,9 +241,8 @@
     <div id="about" class="section" style="text-align: center;">
       STARCar - Short Term Accommodation & Rentals platform where you can post and find rental rooms and cars for sale, it's free.
       <br><br><br><br>
-      <textarea placeholder="Comments and suggestions are welcome !" style="width: 40%; height: 20vh;">
-
-      </textarea> <br><br>
+      <textarea placeholder="Comments and suggestions are welcome !" style="width: 40%; height: 20vh; border-radius: 5px;"></textarea>
+        <br><br>
       <input type="button" value="- Send -">
     </div>
 
@@ -266,8 +265,19 @@
     });
 
     document.getElementById("formId").addEventListener("submit", function(e) {
-      e.preventDefault(); // remove this line if you want actual submission
-      console.log("Form submitted by Enter key");
+    e.preventDefault(); // 🚫 stop page reload
+
+    const formData = new FormData(this);
+
+    fetch("property/publish", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.text())
+    .then(data => {
+        alert("Saved successfully!");
+    })
+    .catch(err => console.error(err));
     });
   </script>
 </body>

@@ -16,3 +16,5 @@ logging:
   level:
     org.springframework.jdbc.core: TRACE
     org.springframework.jdbc.core.StatementCreatorUtils: TRACE
+file:
+  upload-dir: /home/nkrishnawat/uploads

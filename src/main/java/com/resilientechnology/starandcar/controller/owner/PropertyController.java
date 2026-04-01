@@ -19,7 +19,7 @@ public class PropertyController {
     @Autowired
     PropertyService propertyService;
 
-    @GetMapping(value = { "search", "text/{text}" }, produces = "application/json")
+    @GetMapping(value = { "search/{text}" }, produces = "application/json")
     public List<Property> search(@PathVariable(value = "text", required = false) String text) {
 
         if (text == null || text.isBlank()) {
@@ -39,8 +39,10 @@ public class PropertyController {
         return propertyService.getPropertyById(propertyID);
     }
 
-    @PostMapping(value = { "publish" }, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public boolean publish(@RequestBody PropertyDetailVO propertyDetailVO, List<MultipartFile> files) {
+    @PostMapping(value = "publish", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public boolean publish(
+            @ModelAttribute PropertyDetailVO propertyDetailVO,
+            @RequestParam("files") List<MultipartFile> files) {
         return propertyService.save(propertyDetailVO, files);
     }
 }

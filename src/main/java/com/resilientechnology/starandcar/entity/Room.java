@@ -9,6 +9,7 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 
 import java.math.BigInteger;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -26,6 +27,6 @@ public class Room {
     boolean isAc;
 
     @Column("image_urls")
-    Set<String> imageUrlS3;   // mapped to room_image_url_s3 table
+    List<String> imageUrlS3;   // mapped to room_image_url_s3 table
 
 }

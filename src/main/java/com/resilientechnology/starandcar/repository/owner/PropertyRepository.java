@@ -69,8 +69,8 @@ public class PropertyRepository {
 
         final String INSERT_ROOM = """
         INSERT INTO ROOM 
-        (room_id, property_id, image_url_s3)
-        VALUES (?, ?, ?)
+        (room_id, property_id, is_ac, image_urls)
+        VALUES (?, ?, ?, ?)
     """;
 
         try {
@@ -94,7 +94,8 @@ public class PropertyRepository {
                         (ps, room) -> {
                             ps.setLong(1, room.getRoomId());
                             ps.setLong(2, property.getPropertyId()); // enforce relation
-                            ps.setString(3, room.getImageUrlS3().stream().collect(Collectors.joining(", ")));
+                            ps.setBoolean(3, room.isAc());
+                            ps.setString(4, room.getImageUrlS3().stream().collect(Collectors.joining(", ")));
                         }
                 );
             }

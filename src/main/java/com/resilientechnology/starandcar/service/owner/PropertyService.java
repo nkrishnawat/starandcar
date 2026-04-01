@@ -18,6 +18,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PropertyService {
@@ -71,19 +72,23 @@ public class PropertyService {
             return fileNames !=null && fileNames.size() == files.size();
         }
     private Property to_entity(PropertyDetailVO propertyDetailVO, List<String> fileNames) {
+        Long propertyID = System.currentTimeMillis();
         Room room = Room.builder().isAc(true)
-                .propertyId(System.currentTimeMillis())
+                .propertyId(propertyID)
                 .roomId((System.currentTimeMillis()/29)*13)
-                .imageUrlS3(new HashSet<>(fileNames)).build();
+                .imageUrlS3(fileNames.stream().map(fName ->
+                        uploadDir + "/" + fName).collect(Collectors.toList())).build();
 
         HashSet set = new HashSet();
         set.add(room);
 
-        return Property.builder().address(propertyDetailVO.getAddress())
+        return Property.builder()
+                .propertyId(propertyID)
+                .address(propertyDetailVO.getAddress())
                 .contactPhoneNo(propertyDetailVO.getPhoneno())
                 .contactEmail(propertyDetailVO.getEmail())
                 .notes(propertyDetailVO.getNotes())
                 .description(propertyDetailVO.getDescription())
-                .rooms(set).build();
+                .rooms(new ArrayList<>(set)).build();
     }
 }

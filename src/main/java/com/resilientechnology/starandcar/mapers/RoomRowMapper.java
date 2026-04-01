@@ -6,9 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class RoomRowMapper implements RowMapper<Room> {
 
@@ -25,9 +23,9 @@ public class RoomRowMapper implements RowMapper<Room> {
         boolean isAc = rs.getBoolean("is_ac");
 
         String urls = rs.getString("image_urls");
-        Set<String> imageUrls = urls == null || urls.isEmpty() ?
-                new HashSet<>() :
-                new HashSet<>(Arrays.asList(urls.split(",")));
+        List<String> imageUrls = urls == null || urls.isEmpty() ?
+                new ArrayList<>() :
+                Arrays.asList(urls.split(","));
 
         return Room.builder()
                 .roomId(roomId)
