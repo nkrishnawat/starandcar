@@ -17,28 +17,20 @@ public class PropertyController {
     @Autowired
     PropertyService propertyService;
 
-    @GetMapping(value = { "zip", "zip/{zip}" }, produces = "application/json")
-    public List<Property> listRoomsForOwner(@PathVariable(value = "zip", required = false) String zip) {
+    @GetMapping(value = { "search", "text/{text}" }, produces = "application/json")
+    public List<Property> listRoomsForOwner(@PathVariable(value = "text", required = false) String text) {
 
-        if (zip == null || zip.isBlank()) {
+        if (text == null || text.isBlank()) {
             return propertyService.roomsByZip(313001L);
         }
 
         try {
-            Long zipCode = Long.parseLong(zip);
+            Long zipCode = Long.parseLong(text);
             return propertyService.roomsByZip(zipCode);
         } catch (NumberFormatException e) {
-            // fallback when invalid zip like "alphabest"
-            return propertyService.searchByText(String.valueOf(zip));
+            return propertyService.searchByText(String.valueOf(text));
         }
     }
-
-/*
-    @GetMapping(value = "search/{searchText}",  produces = "application/json")
-    public List<Property> searchByText(@PathVariable("searchText") String searchText) {
-        return propertyService.searchByText(searchText);
-    }
-*/
 
     @GetMapping(value = "property/{propertyId}", produces = "application/json")
     public Property getPropertyById(@PathVariable("propertyId") Long propertyID) {
