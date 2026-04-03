@@ -3,13 +3,11 @@ package com.resilientechnology.starandcar.controller.owner;
 import com.resilientechnology.starandcar.PropertyDetailVO;
 import com.resilientechnology.starandcar.entity.Property;
 import com.resilientechnology.starandcar.service.owner.PropertyService;
-import jakarta.servlet.annotation.MultipartConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController

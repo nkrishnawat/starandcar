@@ -22,15 +22,15 @@ public class PropertyRepository {
 
     // Get property by ID
     public Property getPropertyById(Long propertyId) {
-        String sql = "SELECT property_id, address, description, notes FROM property WHERE property_id = ?";
+        String sql = "SELECT property_id, address, description, notes FROM PROPERTY WHERE property_id = ?";
         return jdbcTemplate.queryForObject(sql, new Object[]{propertyId}, new PropertyRowMapper(jdbcTemplate));
     }
 
     // Search by text in address or description (MariaDB-compatible)
     public List<Property> searchByText(String searchText) {
         String sql = "SELECT p.property_id, p.address, p.description, p.notes, contact_email, contact_phone_no " +
-                "FROM property p " +
-                "JOIN room r ON p.property_id = r.property_id " +
+                "FROM PROPERTY p " +
+                "JOIN ROOM r ON p.property_id = r.property_id " +
                 "WHERE LOWER(address) LIKE ? OR LOWER(description) LIKE ? OR LOWER(notes) LIKE ?";
 
         String searchPattern = "%" + searchText.toLowerCase() + "%";
@@ -47,8 +47,8 @@ public class PropertyRepository {
         String zipPattern = "%" + zip + "%";
 
         String sql = "SELECT p.property_id, p.address, p.description, p.notes, contact_email, contact_phone_no " +
-                "FROM property p " +
-                "JOIN room r ON p.property_id = r.property_id " +
+                "FROM PROPERTY p " +
+                "JOIN ROOM r ON p.property_id = r.property_id " +
                 "WHERE p.address LIKE ?";
 
         return jdbcTemplate.query(

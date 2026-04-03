@@ -1,5 +1,5 @@
 -- Insert Properties for Udaipur ZIP Codes
-INSERT INTO property (property_id, address, description, notes, contact_email, contact_phone_no)
+INSERT INTO PROPERTY (property_id, address, description, notes, contact_email, contact_phone_no)
 VALUES
 (1, '12, Gangaur Ghat Marg, Old City, Udaipur, 313001',
  'Heritage villa near Lake Pichola with traditional Rajasthani interiors, rooftop seating, and walking distance to City Palace.',
@@ -39,7 +39,7 @@ ON DUPLICATE KEY UPDATE
     contact_phone_no = VALUES(contact_phone_no);
 
 -- Insert Rooms with image URLs
-INSERT INTO room (room_id, property_id, is_ac, image_urls)
+INSERT INTO ROOM (room_id, property_id, is_ac, image_urls)
 VALUES
 (101, 1, TRUE, 'https://s3.aws.com/udaipur/313001/room1a.jpg,https://s3.aws.com/udaipur/313001/room1b.jpg'),
 (102, 1, FALSE, 'https://s3.aws.com/udaipur/313001/room2.jpg'),
