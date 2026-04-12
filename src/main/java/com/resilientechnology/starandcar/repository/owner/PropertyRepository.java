@@ -30,8 +30,8 @@ public class PropertyRepository {
     public List<Property> searchByText(String searchText) {
         String sql = "SELECT p.property_id, p.address, p.description, p.notes, contact_email, contact_phone_no " +
                 "FROM PROPERTY p " +
-                "JOIN ROOM r ON p.property_id = r.property_id " +
-                "WHERE LOWER(address) LIKE ? OR LOWER(description) LIKE ? OR LOWER(notes) LIKE ?";
+                "LEFT JOIN ROOM r ON p.property_id = r.property_id " +
+                "WHERE LOWER(address) LIKE ? OR LOWER(description) LIKE ? OR LOWER(notes) LIKE ?  GROUP BY property_id";
 
         String searchPattern = "%" + searchText.toLowerCase() + "%";
 
@@ -48,8 +48,8 @@ public class PropertyRepository {
 
         String sql = "SELECT p.property_id, p.address, p.description, p.notes, contact_email, contact_phone_no " +
                 "FROM PROPERTY p " +
-                "JOIN ROOM r ON p.property_id = r.property_id " +
-                "WHERE p.address LIKE ?";
+                "LEFT JOIN ROOM r ON p.property_id = r.property_id " +
+                "WHERE p.address LIKE ? GROUP BY property_id";
 
         return jdbcTemplate.query(
                 sql,

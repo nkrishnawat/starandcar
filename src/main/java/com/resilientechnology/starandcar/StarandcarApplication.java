@@ -7,12 +7,6 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 
 @SpringBootApplication()
 public class StarandcarApplication extends SpringBootServletInitializer {
-
-	@Override
-	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-		return application.sources(StarandcarApplication.class);
-	}
-
 	public static void main(String[] args) {
 		SpringApplication.run(StarandcarApplication.class, args);
 	}
