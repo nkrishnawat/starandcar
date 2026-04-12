@@ -148,7 +148,7 @@
             const row = document.createElement('tr');
                 const imagesHtml = item.rooms
                   .flatMap(room => room.imageUrlS3)   // flatten all image arrays
-                  .map(img => `<img src="${img}" class="img_popup" style="width:80px; margin:5px;" />`)
+                  .map(img => `<img src="images/download.webp" class="img_popup" style="width:80px; margin:5px;" />`)
                   .join('');
 
             row.innerHTML = `  
