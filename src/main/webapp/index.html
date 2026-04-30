@@ -574,7 +574,7 @@
             data.forEach(item => {
             const imagesHtml = item.rooms
               .flatMap(room => room.imageUrlS3)
-              .map(img => `<img src="${window.origin.concat('/uploads' + img.split('/')[img.split('/').length - 1])}" alt="property image">`)
+              .map(img => `<img src="${window.origin.concat('/uploads/' + img.split('/')[img.split('/').length - 1])}" alt="property image">`)
               .join('');
 
               const row = document.createElement('tr');

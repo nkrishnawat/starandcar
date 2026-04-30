@@ -1,7 +1,11 @@
 spring:
   application:
     name: starandcar
-
+  web:
+    resources:
+      static-locations: file:/home/nkrishnawat/uploads/,classpath:/static/,classpath:/public/
+    mvc:
+      static-path-pattern: /uploads/**
   datasource:
     url: jdbc:mariadb://localhost:3206/starandcardb?createDatabaseIfNotExist=true
     username: root
