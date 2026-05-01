@@ -65,7 +65,14 @@
 
     @media (max-width: 900px) {
       .sub-brand {
-        display: none;      }
+        display: none;      
+      }
+      thead tr th:nth-child(5) {
+        display: none;
+      }
+      tbody tr td:nth-child(5) {
+        display: none;
+      }
     }
     @media (max-width: 700px) {
       .nav-sep {
@@ -77,9 +84,36 @@
       #nav-about {
         display: none;
       }
+      tbody tr td:nth-child(4), thead tr th:nth-child(4) {
+        display: none;
+      }
+      tbody tr td:nth-child(5), thead tr th:nth-child(5) {
+        display: none;
+      }
     }
     @media (max-width:500px) {
       .brand {
+        display: none;
+      }
+      tbody tr td:nth-child(4), thead tr th:nth-child(4) {
+        display: none;
+      }
+      tbody tr td:nth-child(5), thead tr th:nth-child(5) {
+        display: none;
+      }
+    }
+
+    @media (max-width:300px) {
+      .brand {
+        display: none;
+      }
+      tbody tr td:nth-child(3), thead tr th:nth-child(3) {
+        display: none;
+      }
+      tbody tr td:nth-child(4), thead tr th:nth-child(4) {
+        display: none;
+      }
+      tbody tr td:nth-child(5), thead tr th:nth-child(5) {
         display: none;
       }
     }
