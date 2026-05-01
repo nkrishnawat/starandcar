@@ -59,6 +59,31 @@
       font-style: normal;
     }
 
+    .sub-brand {
+      display: inline-block;
+    }
+
+    @media (max-width: 900px) {
+      .sub-brand {
+        display: none;      }
+    }
+    @media (max-width: 700px) {
+      .nav-sep {
+        display: none;
+      }
+      #nav-contact {
+        display: none;
+      }
+      #nav-about {
+        display: none;
+      }
+    }
+    @media (max-width:500px) {
+      .brand {
+        display: none;
+      }
+    }
+
     .search-bar {
       display: flex;
       flex: 1;
@@ -249,9 +274,10 @@
     .img-row img:hover {
       display: inline-block;
       position: absolute;
-      width: 200px;
-      height: 200px;
-      border-radius: 8px;
+      width: 300px;
+      height: 300px;
+      transition: all ease 0.18s;
+      border-radius: 10px;
       z-index: 10;
     }
 
@@ -451,7 +477,7 @@
 
     <!-- Navbar -->
     <nav class="nav">
-      <div class="brand"><span>STAR</span>&Car — Short Term Accommodation Rental & Car</div>
+      <div class="brand"><span>STAR</span>&Car <div class="sub-brand">— Short Term Accommodation Rental & Car</div></div>
 
       <div class="search-bar">
         <input type="text" id="searchID" placeholder="Search by PIN / ZIP, city OR Vehicle Model…">
@@ -527,7 +553,7 @@
       <div class="info-section">
         <div class="info-title">Get in touch</div>
         <div class="contact-item">📞 +91 90010 21015</div>
-        <div class="contact-item">📧 b.s.krishnawat@gmail.com</div>
+        <div class="contact-item">📧 logspate@gmail.com</div>
       </div>
     </div>
 
