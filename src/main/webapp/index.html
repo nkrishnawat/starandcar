@@ -594,11 +594,13 @@
     <!-- About Section -->
     <div id="about" class="section">
       <div class="info-section">
+          <form id="sendFeedbackForm">
         <div class="info-title">About STAR&Car</div>
         <p class="about-text">STAR&Car is a free platform to post and discover short-term accommodation rentals and cars. Whether you're a property owner, professional, student or a traveller, we make it easy.</p>
-        <textarea class="comment-box" placeholder="Share your feedback or suggestions…"></textarea>
+        <textarea class="comment-box" name="description" placeholder="Share your feedback or suggestions…"></textarea>
         <br>
-        <button class="send-btn">Send feedback</button>
+        <button class="send-btn" id="sendFeedback">Send feedback</button>
+          </form>
       </div>
     </div>
 
@@ -678,6 +680,17 @@
         .then(() => alert('Listing published successfully!'))
         .catch(err => console.error(err));
     });
+
+    document.getElementById('sendFeedbackForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      fetch('feedback/save', {
+            method: 'POST',
+            body: formData
+        }).then(res => res.text())
+        .then(() => alert('Feedback sent.'))
+        .catch(e => console.log('Something went wrong.' + e))
+      });
   </script>
 </body>
 

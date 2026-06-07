@@ -1,6 +1,6 @@
 package com.resilientechnology.starandcar.service.owner;
 
-import com.resilientechnology.starandcar.PropertyDetailVO;
+import com.resilientechnology.starandcar.record.PropertyDetailVO;
 import com.resilientechnology.starandcar.entity.Property;
 import com.resilientechnology.starandcar.entity.Room;
 import com.resilientechnology.starandcar.repository.owner.PropertyRepository;
@@ -9,16 +9,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.stream.Collectors;
+import module java.base;
+
 
 @Service
 public class PropertyService {

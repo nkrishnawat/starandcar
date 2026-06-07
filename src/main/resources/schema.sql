@@ -16,3 +16,7 @@ CREATE TABLE IF NOT EXISTS ROOM (
     image_urls TEXT,
     CONSTRAINT fk_room_property FOREIGN KEY (property_id) REFERENCES PROPERTY(property_id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS FEEDBACK (
+    description VARCHAR(3000),
+);

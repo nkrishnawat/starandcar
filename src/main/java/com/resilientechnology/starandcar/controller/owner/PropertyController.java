@@ -1,14 +1,16 @@
 package com.resilientechnology.starandcar.controller.owner;
 
-import com.resilientechnology.starandcar.PropertyDetailVO;
+import com.resilientechnology.starandcar.record.FeedbackVO;
+import com.resilientechnology.starandcar.record.PropertyDetailVO;
 import com.resilientechnology.starandcar.entity.Property;
 import com.resilientechnology.starandcar.service.owner.PropertyService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import module java.base;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("property")
@@ -28,7 +30,7 @@ public class PropertyController {
             Long zipCode = Long.parseLong(text);
             return propertyService.roomsByZip(zipCode);
         } catch (NumberFormatException e) {
-            return propertyService.searchByText(String.valueOf(text));
+            return propertyService.searchByText(text);
         }
     }
 
@@ -39,7 +41,7 @@ public class PropertyController {
 
     @PostMapping(value = "publish", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public boolean publish(
-            @ModelAttribute PropertyDetailVO propertyDetailVO,
+            @Valid @ModelAttribute PropertyDetailVO propertyDetailVO,
             @RequestParam("files") List<MultipartFile> files) {
         return propertyService.save(propertyDetailVO, files);
     }
