@@ -1,612 +1,622 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>STAR&Car — Short Term Accommodation Rental & Car</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STAR&Car — Short Term Accommodation Rental & Car</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+        }
 
-    body {
-      font-family: 'Geist', system-ui, sans-serif;
-      background: #f1f5f9;
-      min-height: 100vh;
-      padding: 8px;
-    }
+        body {
+          font-family: 'Geist', system-ui, sans-serif;
+          background: #f1f5f9;
+          min-height: 100vh;
+          padding: 8px;
+        }
 
-    .card {
-      border-radius: 10px;
-      overflow: hidden;
-      border: 0.5px solid #1e1e28;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
+        .card {
+          border-radius: 10px;
+          overflow: hidden;
+          border: 0.5px solid #1e1e28;
+          max-width: 1400px;
+          min-height: 96vh;
+          margin: 0 auto;
+        }
 
-    /* ── Dark Navbar ── */
-    .nav {
-      background: #0c0c0f;
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      word-wrap: break-word;
-      align-items: center;
-      padding: 0 14px;
-      height: 48px;
-      gap: 10px;
-    }
+        /* ── Dark Navbar ── */
+        .nav {
+          background: #0c0c0f;
+          display: flex;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          word-wrap: break-word;
+          align-items: center;
+          padding: 0 14px;
+          height: 48px;
+          gap: 10px;
+        }
 
-    .brand {
-      font-family: 'Newsreader', serif;
-      font-size: 17px;
-      font-weight: 700;
-      font-style: italic;
-      color: #f1f0eb;
-      letter-spacing: -0.4px;
-      white-space: nowrap;
-      text-decoration: none;
-    }
+        .brand {
+          font-family: 'Newsreader', serif;
+          font-size: 17px;
+          font-weight: 700;
+          font-style: italic;
+          color: #f1f0eb;
+          letter-spacing: -0.4px;
+          white-space: nowrap;
+          text-decoration: none;
+        }
 
-    .brand span {
-      color: #818cf8;
-      font-style: normal;
-    }
+        .brand span {
+          color: #818cf8;
+          font-style: normal;
+        }
 
-    .sub-brand {
-      display: inline-block;
-    }
+        .sub-brand {
+          display: inline-block;
+        }
 
-    @media (max-width: 900px) {
-      .sub-brand {
-        display: none;      
-      }
-      thead tr th:nth-child(5) {
-        display: none;
-      }
-      tbody tr td:nth-child(5) {
-        display: none;
-      }
-    }
-    @media (max-width: 700px) {
-      .nav-sep {
-        display: none;
-      }
-      #nav-contact {
-        display: none;
-      }
-      #nav-about {
-        display: none;
-      }
-      tbody tr td:nth-child(4), thead tr th:nth-child(4) {
-        display: none;
-      }
-      tbody tr td:nth-child(5), thead tr th:nth-child(5) {
-        display: none;
-      }
-    }
-    @media (max-width:500px) {
-      .brand {
-        display: none;
-      }
-      tbody tr td:nth-child(4), thead tr th:nth-child(4) {
-        display: none;
-      }
-      tbody tr td:nth-child(5), thead tr th:nth-child(5) {
-        display: none;
-      }
-    }
+        @media (max-width: 900px) {
+          .sub-brand {
+            display: none;
+          }
+          thead tr th:nth-child(5) {
+            display: none;
+          }
+          tbody tr td:nth-child(5) {
+            display: none;
+          }
+        }
+        @media (max-width: 700px) {
+          .nav-sep {
+            display: none;
+          }
+          #nav-contact {
+            display: none;
+          }
+          #nav-about {
+            display: none;
+          }
+          tbody tr td:nth-child(4), thead tr th:nth-child(4) {
+            display: none;
+          }
+          tbody tr td:nth-child(5), thead tr th:nth-child(5) {
+            display: none;
+          }
+        }
+        @media (max-width:500px) {
+          .brand {
+            display: none;
+          }
+          tbody tr td:nth-child(4), thead tr th:nth-child(4) {
+            display: none;
+          }
+          tbody tr td:nth-child(5), thead tr th:nth-child(5) {
+            display: none;
+          }
+        }
 
-    @media (max-width:300px) {
-      .brand {
-        display: none;
-      }
-      tbody tr td:nth-child(3), thead tr th:nth-child(3) {
-        display: none;
-      }
-      tbody tr td:nth-child(4), thead tr th:nth-child(4) {
-        display: none;
-      }
-      tbody tr td:nth-child(5), thead tr th:nth-child(5) {
-        display: none;
-      }
-    }
+        @media (max-width:300px) {
+          .brand {
+            display: none;
+          }
+          tbody tr td:nth-child(3), thead tr th:nth-child(3) {
+            display: none;
+          }
+          tbody tr td:nth-child(4), thead tr th:nth-child(4) {
+            display: none;
+          }
+          tbody tr td:nth-child(5), thead tr th:nth-child(5) {
+            display: none;
+          }
+        }
 
-    .search-bar {
-      display: flex;
-      flex: 1;
-      max-width: 420px;
-      border: 0.5px solid #2d2d38;
-      border-radius: 6px;
-      overflow: hidden;
-      background: #16161c;
-    }
+        .search-bar {
+          display: flex;
+          flex: 1;
+          max-width: 420px;
+          border: 0.5px solid #2d2d38;
+          border-radius: 6px;
+          overflow: hidden;
+          background: #16161c;
+        }
 
-    .search-bar input {
-      flex: 1;
-      border: none;
-      outline: none;
-      padding: 6px 11px;
-      font-family: 'Geist', sans-serif;
-      font-size: 12px;
-      color: #c4c4d4;
-      background: transparent;
-    }
+        .search-bar input {
+          flex: 1;
+          border: none;
+          outline: none;
+          padding: 6px 11px;
+          font-family: 'Geist', sans-serif;
+          font-size: 12px;
+          color: #c4c4d4;
+          background: transparent;
+        }
 
-    .search-bar input::placeholder {
-      color: #44444f;
-    }
+        .search-bar input::placeholder {
+          color: #44444f;
+        }
 
-    .search-bar button {
-      background: #4f46e5;
-      color: white;
-      border: none;
-      padding: 6px 14px;
-      font-family: 'Geist', sans-serif;
-      font-size: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: background 0.12s;
-    }
+        .search-bar button {
+          background: #4f46e5;
+          color: white;
+          border: none;
+          padding: 6px 14px;
+          font-family: 'Geist', sans-serif;
+          font-size: 12px;
+          font-weight: 500;
+          cursor: pointer;
+          white-space: nowrap;
+          transition: background 0.12s;
+        }
 
-    .search-bar button:hover {
-      background: #4338ca;
-    }
+        .search-bar button:hover {
+          background: #4338ca;
+        }
 
-    .nav-links {
-      display: flex;
-      gap: 4px;
-      align-items: center;
-    }
+        .nav-links {
+          display: flex;
+          gap: 4px;
+          align-items: center;
+        }
 
-    .nav-links a {
-      font-family: 'Geist', sans-serif;
-      font-size: 12px;
-      font-weight: 500;
-      color: #c4c4d4;
-      padding: 5px 11px;
-      border-radius: 5px;
-      cursor: pointer;
-      text-decoration: none;
-      border: 0.5px solid #2d2d38;
-      transition: color 0.12s, background 0.12s, border-color 0.12s;
-    }
+        .nav-links a {
+          font-family: 'Geist', sans-serif;
+          font-size: 12px;
+          font-weight: 500;
+          color: #c4c4d4;
+          padding: 5px 11px;
+          border-radius: 5px;
+          cursor: pointer;
+          text-decoration: none;
+          border: 0.5px solid #2d2d38;
+          transition: color 0.12s, background 0.12s, border-color 0.12s;
+        }
 
-    .nav-links a:hover,
-    .nav-links a.active {
-      background: #4f46e5;
-      color: #ffffff;
-      border-color: #4f46e5;
-    }
+        .nav-links a:hover,
+        .nav-links a.active {
+          background: #4f46e5;
+          color: #ffffff;
+          border-color: #4f46e5;
+        }
 
-    .nav-sep {
-      color: #2a2a34;
-      font-size: 12px;
-      padding: 0 1px;
-    }
+        .nav-sep {
+          color: #2a2a34;
+          font-size: 12px;
+          padding: 0 1px;
+        }
 
-    /* ── Results Table ── */
-    #results {
-      width: 100%;
-      border-collapse: collapse;
-      background: #ffffff;
-      display: none;
-    }
+        /* ── Results Table ── */
+        #results {
+          width: 100%;
+          border-collapse: collapse;
+          background: #ffffff;
+          display: none;
+        }
 
-    #results thead {
-      background: #f8fafc;
-    }
+        #results thead {
+          background: #f8fafc;
+        }
 
-    #results thead th {
-      padding: 8px 12px;
-      text-align: left;
-      font-family: 'Geist Mono', monospace;
-      font-size: 9px;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.9px;
-      color: #94a3b8;
-      border-bottom: 0.5px solid #e8edf2;
-    }
+        #results thead th {
+          padding: 8px 12px;
+          text-align: left;
+          font-family: 'Geist Mono', monospace;
+          font-size: 9px;
+          font-weight: 500;
+          text-transform: uppercase;
+          letter-spacing: 0.9px;
+          color: #94a3b8;
+          border-bottom: 0.5px solid #e8edf2;
+        }
 
-    #results tbody td {
-      padding: 2px 3px;
-      font-size: 8px;
-      border-bottom: 0.5px solid #f1f5f9;
-      vertical-align: top;
-      line-height: 1.55;
-      background: #ffffff;
-    }
+        #results tbody td {
+          padding: 2px 3px;
+          font-size: 8px;
+          border-bottom: 0.5px solid #f1f5f9;
+          vertical-align: top;
+          line-height: 1.55;
+          background: #ffffff;
+        }
 
-    #results tbody tr:last-child td {
-      border-bottom: none;
-    }
+        #results tbody tr:last-child td {
+          border-bottom: none;
+        }
 
-    #results tbody tr:hover td {
-      background: #f5f7ff;
-    }
+        #results tbody tr:hover td {
+          background: #f5f7ff;
+        }
 
-    .addr-main {
-      font-family: 'Newsreader', serif;
-      font-size: 11px;
-      font-weight: 700;
-      color: #1e293b;
-      letter-spacing: -0.2px;
-    }
+        .addr-main {
+          font-family: 'Newsreader', serif;
+          font-size: 11px;
+          font-weight: 700;
+          color: #1e293b;
+          letter-spacing: -0.2px;
+        }
 
-    .addr-sub {
-      font-family: 'Geist Mono', monospace;
-      font-size: 10px;
-      color: #94a3b8;
-      margin-top: 2px;
-    }
+        .addr-sub {
+          font-family: 'Geist Mono', monospace;
+          font-size: 10px;
+          color: #94a3b8;
+          margin-top: 2px;
+        }
 
-    .contact-email {
-      font-family: 'Geist', sans-serif;
-      font-size: 12px;
-      color: #4f46e5;
-    }
+        .contact-email {
+          font-family: 'Geist', sans-serif;
+          font-size: 12px;
+          color: #4f46e5;
+        }
 
-    .contact-phone {
-      font-family: 'Geist Mono', monospace;
-      font-size: 10px;
-      color: #94a3b8;
-      margin-top: 2px;
-    }
+        .contact-phone {
+          font-family: 'Geist Mono', monospace;
+          font-size: 10px;
+          color: #94a3b8;
+          margin-top: 2px;
+        }
 
-    .desc {
-      font-family: 'Newsreader', serif;
-      font-size: 13px;
-      font-style: italic;
-      color: #475569;
-      line-height: 1.65;
-    }
+        .desc {
+          font-family: 'Newsreader', serif;
+          font-size: 13px;
+          font-style: italic;
+          color: #475569;
+          line-height: 1.65;
+        }
 
-    .notes {
-      font-family: 'Geist', sans-serif;
-      font-size: 11px;
-      color: #64748b;
-      line-height: 1.6;
-    }
+        .notes {
+          font-family: 'Geist', sans-serif;
+          font-size: 11px;
+          color: #64748b;
+          line-height: 1.6;
+        }
 
-    .room-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: #eef2ff;
-      color: #4338ca;
-      font-family: 'Geist Mono', monospace;
-      font-size: 11px;
-      font-weight: 600;
-      padding: 3px 10px;
-      border-radius: 20px;
-    }
+        .room-badge {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          background: #eef2ff;
+          color: #4338ca;
+          font-family: 'Geist Mono', monospace;
+          font-size: 11px;
+          font-weight: 600;
+          padding: 3px 10px;
+          border-radius: 20px;
+        }
 
-    .img-row {
-      display: flex;
-      gap: 5px;
-      flex-wrap: wrap;
-    }
+        .img-row {
+          display: flex;
+          gap: 5px;
+          flex-wrap: wrap;
+        }
 
-    .img-row img {
-      width: 44px;
-      height: 44px;
-      object-fit: cover;
-      border-radius: 5px;
-      border: 0.5px solid #dde3ed;
-      cursor: pointer;
-      transition: transform 0.12s;
-    }
+        .img-row img {
+          width: 44px;
+          height: 44px;
+          object-fit: cover;
+          border-radius: 5px;
+          border: 0.5px solid #dde3ed;
+          cursor: pointer;
+          transition: transform 0.12s ease;
+          transform-origin: top right;
+        }
 
-    .img-row img:hover {
-      display: inline-block;
-      position: absolute;
-      width: 300px;
-      height: 300px;
-      transition: all ease 0.18s;
-      border-radius: 10px;
-      z-index: 10;
-    }
+        .img-row img:hover {
+          display: inline-block;
+          position: relative;
+          border-radius: 5px;
+          z-index: 10;
+          transform: scale(7);
+        }
 
-    /* ── Sections ── */
-    .section {
-      display: none;
-      padding: 20px 24px;
-      background: white;
-    }
+        /* LAST 5 ROWS: Expand Up-Left */
+        tr:nth-last-child(-n+5) td img {
+          transform-origin: bottom right;
+        }
 
-    .section.active {
-      display: block;
-    }
+        tr:nth-child(-n+6) td img {
+          transform-origin: top right;
+        }
 
-    .form-title {
-      font-family: 'Newsreader', serif;
-      font-size: 19px;
-      font-weight: 700;
-      font-style: italic;
-      color: #1e293b;
-      margin-bottom: 16px;
-      padding-bottom: 10px;
-      border-bottom: 0.5px solid #e2e8f0;
-      letter-spacing: -0.3px;
-    }
+        /* ── Sections ── */
+        .section {
+          display: none;
+          padding: 20px 24px;
+          background: white;
+        }
 
-    .form-grid {
-      max-width: 520px;
-    }
+        .section.active {
+          display: block;
+        }
 
-    .form-row {
-      margin-bottom: 12px;
-    }
+        .form-title {
+          font-family: 'Newsreader', serif;
+          font-size: 19px;
+          font-weight: 700;
+          font-style: italic;
+          color: #1e293b;
+          margin-bottom: 16px;
+          padding-bottom: 10px;
+          border-bottom: 0.5px solid #e2e8f0;
+          letter-spacing: -0.3px;
+        }
 
-    .form-row label {
-      display: block;
-      font-family: 'Geist Mono', monospace;
-      font-size: 10px;
-      font-weight: 500;
-      color: #64748b;
-      text-transform: uppercase;
-      letter-spacing: 0.7px;
-      margin-bottom: 4px;
-    }
+        .form-grid {
+          max-width: 520px;
+        }
 
-    .form-row input[type=text],
-    .form-row textarea {
-      width: 100%;
-      border: 0.5px solid #cbd5e1;
-      border-radius: 6px;
-      padding: 7px 10px;
-      font-family: 'Geist', sans-serif;
-      font-size: 13px;
-      color: #334155;
-      background: white;
-      outline: none;
-      transition: border-color 0.12s;
-    }
+        .form-row {
+          margin-bottom: 12px;
+        }
 
-    .form-row input[type=text]:focus,
-    .form-row textarea:focus {
-      border-color: #4f46e5;
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.08);
-    }
+        .form-row label {
+          display: block;
+          font-family: 'Geist Mono', monospace;
+          font-size: 10px;
+          font-weight: 500;
+          color: #64748b;
+          text-transform: uppercase;
+          letter-spacing: 0.7px;
+          margin-bottom: 4px;
+        }
 
-    .form-row input[type=text]::placeholder,
-    .form-row textarea::placeholder {
-      color: #94a3b8;
-    }
+        .form-row input[type=text],
+        .form-row textarea {
+          width: 100%;
+          border: 0.5px solid #cbd5e1;
+          border-radius: 6px;
+          padding: 7px 10px;
+          font-family: 'Geist', sans-serif;
+          font-size: 13px;
+          color: #334155;
+          background: white;
+          outline: none;
+          transition: border-color 0.12s;
+        }
 
-    .form-row textarea {
-      height: 70px;
-      resize: vertical;
-    }
+        .form-row input[type=text]:focus,
+        .form-row textarea:focus {
+          border-color: #4f46e5;
+          box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.08);
+        }
 
-    .form-row input[type=number] {
-      width: 90px;
-      border: 0.5px solid #cbd5e1;
-      border-radius: 6px;
-      padding: 7px 10px;
-      font-family: 'Geist Mono', monospace;
-      font-size: 13px;
-      color: #334155;
-      outline: none;
-    }
+        .form-row input[type=text]::placeholder,
+        .form-row textarea::placeholder {
+          color: #94a3b8;
+        }
 
-    .form-row input[type=file] {
-      font-family: 'Geist', sans-serif;
-      font-size: 12px;
-      color: #64748b;
-    }
+        .form-row textarea {
+          height: 70px;
+          resize: vertical;
+        }
 
-    .form-2col {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
+        .form-row input[type=number] {
+          width: 90px;
+          border: 0.5px solid #cbd5e1;
+          border-radius: 6px;
+          padding: 7px 10px;
+          font-family: 'Geist Mono', monospace;
+          font-size: 13px;
+          color: #334155;
+          outline: none;
+        }
 
-    .submit-btn {
-      background: #4f46e5;
-      color: white;
-      border: none;
-      padding: 8px 20px;
-      border-radius: 6px;
-      font-family: 'Geist', sans-serif;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      margin-top: 4px;
-      transition: background 0.12s;
-    }
+        .form-row input[type=file] {
+          font-family: 'Geist', sans-serif;
+          font-size: 12px;
+          color: #64748b;
+        }
 
-    .submit-btn:hover {
-      background: #4338ca;
-    }
+        .form-2col {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 12px;
+        }
 
-    /* ── Info Sections ── */
-    .info-section {
-      text-align: center;
-      max-width: 420px;
-      margin: 0 auto;
-    }
+        .submit-btn {
+          background: #4f46e5;
+          color: white;
+          border: none;
+          padding: 8px 20px;
+          border-radius: 6px;
+          font-family: 'Geist', sans-serif;
+          font-size: 13px;
+          font-weight: 500;
+          cursor: pointer;
+          margin-top: 4px;
+          transition: background 0.12s;
+        }
 
-    .info-title {
-      font-family: 'Newsreader', serif;
-      font-size: 19px;
-      font-weight: 700;
-      font-style: italic;
-      color: #1e293b;
-      margin-bottom: 12px;
-      letter-spacing: -0.3px;
-    }
+        .submit-btn:hover {
+          background: #4338ca;
+        }
 
-    .contact-item {
-      font-family: 'Geist', sans-serif;
-      font-size: 14px;
-      color: #475569;
-      margin: 7px 0;
-    }
+        /* ── Info Sections ── */
+        .info-section {
+          text-align: center;
+          max-width: 420px;
+          margin: 0 auto;
+        }
 
-    .about-text {
-      font-family: 'Newsreader', serif;
-      font-size: 14px;
-      font-style: italic;
-      color: #64748b;
-      line-height: 1.7;
-      margin-bottom: 16px;
-    }
+        .info-title {
+          font-family: 'Newsreader', serif;
+          font-size: 19px;
+          font-weight: 700;
+          font-style: italic;
+          color: #1e293b;
+          margin-bottom: 12px;
+          letter-spacing: -0.3px;
+        }
 
-    .comment-box {
-      width: 100%;
-      max-width: 360px;
-      height: 80px;
-      border: 0.5px solid #cbd5e1;
-      border-radius: 6px;
-      padding: 8px 10px;
-      font-family: 'Geist', sans-serif;
-      font-size: 13px;
-      resize: vertical;
-      outline: none;
-      display: block;
-      margin: 0 auto;
-    }
+        .contact-item {
+          font-family: 'Geist', sans-serif;
+          font-size: 14px;
+          color: #475569;
+          margin: 7px 0;
+        }
 
-    .comment-box:focus {
-      border-color: #4f46e5;
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.08);
-    }
+        .about-text {
+          font-family: 'Newsreader', serif;
+          font-size: 14px;
+          font-style: italic;
+          color: #64748b;
+          line-height: 1.7;
+          margin-bottom: 16px;
+        }
 
-    .comment-box::placeholder {
-      color: #94a3b8;
-    }
+        .comment-box {
+          width: 100%;
+          max-width: 360px;
+          height: 80px;
+          border: 0.5px solid #cbd5e1;
+          border-radius: 6px;
+          padding: 8px 10px;
+          font-family: 'Geist', sans-serif;
+          font-size: 13px;
+          resize: vertical;
+          outline: none;
+          display: block;
+          margin: 0 auto;
+        }
 
-    .send-btn {
-      display: inline-block;
-      margin-top: 8px;
-      border: 0.5px solid #cbd5e1;
-      background: transparent;
-      color: #64748b;
-      padding: 7px 18px;
-      border-radius: 6px;
-      font-family: 'Geist', sans-serif;
-      font-size: 13px;
-      cursor: pointer;
-      transition: all 0.12s;
-    }
+        .comment-box:focus {
+          border-color: #4f46e5;
+          box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.08);
+        }
 
-    .send-btn:hover {
-      border-color: #4f46e5;
-      color: #4f46e5;
-    }
-  </style>
+        .comment-box::placeholder {
+          color: #94a3b8;
+        }
+
+        .send-btn {
+          display: inline-block;
+          margin-top: 8px;
+          border: 0.5px solid #cbd5e1;
+          background: transparent;
+          color: #64748b;
+          padding: 7px 18px;
+          border-radius: 6px;
+          font-family: 'Geist', sans-serif;
+          font-size: 13px;
+          cursor: pointer;
+          transition: all 0.12s;
+        }
+
+        .send-btn:hover {
+          border-color: #4f46e5;
+          color: #4f46e5;
+        }
+    </style>
 </head>
 
 <body>
-  <div class="card">
+<div class="card">
 
     <!-- Navbar -->
     <nav class="nav">
-      <div class="brand"><span>STAR</span>&Car <div class="sub-brand">— Short Term Accommodation Rental & Car</div></div>
+        <div class="brand"><span>STAR</span>&Car <div class="sub-brand">— Short Term Accommodation Rental & Car</div></div>
 
-      <div class="search-bar">
-        <input type="text" id="searchID" placeholder="Search by PIN / ZIP, city OR Vehicle Model…">
-        <button onclick="searchText()">Search</button>
-      </div>
+        <div class="search-bar">
+            <input type="text" id="searchID" placeholder="Search by PIN / ZIP, city OR Vehicle Model…">
+            <button onclick="searchText()">Search</button>
+        </div>
 
-      <div class="nav-links">
-        <a onclick="showSection('post4rent')" id="nav-publish">Publish</a>
-        <span class="nav-sep">|</span>
-        <a onclick="showSection('contactus')" id="nav-contact">Contact</a>
-        <span class="nav-sep">|</span>
-        <a onclick="showSection('about')" id="nav-about">About</a>
-      </div>
+        <div class="nav-links">
+            <a onclick="showSection('post4rent')" id="nav-publish">Publish</a>
+            <span class="nav-sep">|</span>
+            <a onclick="showSection('contactus')" id="nav-contact">Contact</a>
+            <span class="nav-sep">|</span>
+            <a onclick="showSection('about')" id="nav-about">About</a>
+        </div>
     </nav>
 
     <!-- Results Table -->
     <table id="results">
-      <thead>
+        <thead>
         <tr>
-          <th style="width:10%">Address</th>
-          <th style="width:10%">Contact</th>
-          <th style="width:38%">Description</th>
-          <th style="width:16%">Owner Notes</th>
-          <th style="width:5%; text-align:center">Count</th>
-          <th style="width:21%">Images</th>
+            <th style="width:10%">Address</th>
+            <th style="width:10%">Contact</th>
+            <th style="width:38%">Description</th>
+            <th style="width:16%">Owner Notes</th>
+            <th style="width:5%; text-align:center">Count</th>
+            <th style="width:21%">Images</th>
         </tr>
-      </thead>
-      <tbody id="table-body"></tbody>
+        </thead>
+        <tbody id="table-body"></tbody>
     </table>
 
     <!-- Publish Section -->
     <div id="post4rent" class="section">
-      <div class="form-grid">
-        <div class="form-title">Add listing</div>
-        <form id="formId" enctype="multipart/form-data">
-          <div class="form-row">
-            <label>Address</label>
-            <input type="text" name="address" placeholder="Full street address">
-          </div>
-          <div class="form-2col">
-            <div class="form-row">
-              <label>Email</label>
-              <input type="text" name="email" placeholder="you@example.com">
-            </div>
-            <div class="form-row">
-              <label>Phone</label>
-              <input type="text" name="phoneno" placeholder="+91 XXXXX XXXXX">
-            </div>
-          </div>
-          <div class="form-row">
-            <label>Description</label>
-            <textarea name="description" placeholder="Describe the property, amenities, location OR Vehicle's Year/Make/Model…"></textarea>
-          </div>
-          <div class="form-row">
-            <label>Notes for guests and buyers</label>
-            <textarea name="notes" placeholder="Lease period, M/F per room, Shared kitchen, lat-bath and parking OR Vehicle's condition, sale price…"></textarea>
-          </div>
-          <div class="form-row">
-            <label>Available count #</label>
-            <input type="number" name="count" placeholder="0" min="0">
-          </div>
-          <div class="form-row">
-            <label>Upload images</label>
-            <input type="file" name="files" multiple>
-          </div>
-          <button type="submit" class="submit-btn">Publish listing</button>
-        </form>
-      </div>
+        <div class="form-grid">
+            <div class="form-title">Add listing</div>
+            <form id="formId" enctype="multipart/form-data">
+                <div class="form-row">
+                    <label>Address</label>
+                    <input type="text" name="address" placeholder="Full street address">
+                </div>
+                <div class="form-2col">
+                    <div class="form-row">
+                        <label>Email</label>
+                        <input type="text" name="email" placeholder="you@example.com">
+                    </div>
+                    <div class="form-row">
+                        <label>Phone</label>
+                        <input type="text" name="phoneno" placeholder="+91 XXXXX XXXXX">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label>Description</label>
+                    <textarea name="description" placeholder="Describe the property, amenities, location OR Vehicle's Year/Make/Model…"></textarea>
+                </div>
+                <div class="form-row">
+                    <label>Notes for guests and buyers</label>
+                    <textarea name="notes" placeholder="Lease period, M/F per room, Shared kitchen, lat-bath and parking OR Vehicle's condition, sale/rent price…"></textarea>
+                </div>
+                <div class="form-row">
+                    <label>Available count #</label>
+                    <input type="number" name="count" placeholder="0" min="0">
+                </div>
+                <div class="form-row">
+                    <label>Upload images</label>
+                    <input type="file" name="files" multiple>
+                </div>
+                <button type="submit" class="submit-btn">Publish listing</button>
+            </form>
+        </div>
     </div>
 
     <!-- Contact Section -->
     <div id="contactus" class="section">
-      <div class="info-section">
-        <div class="info-title">Get in touch</div>
-        <div class="contact-item">📞 +91 90010 21015</div>
-        <div class="contact-item">📧 logspate@gmail.com</div>
-      </div>
+        <div class="info-section">
+            <div class="info-title">Get in touch</div>
+            <div class="contact-item">📞 +91 90010 21015</div>
+            <div class="contact-item">📧 logspate@gmail.com</div>
+        </div>
     </div>
 
     <!-- About Section -->
     <div id="about" class="section">
-      <div class="info-section">
-          <form id="sendFeedbackForm">
-        <div class="info-title">About STAR&Car</div>
-        <p class="about-text">STAR&Car is a free platform to post and discover short-term accommodation rentals and cars. Whether you're a property owner, professional, student or a traveller, we make it easy.</p>
-        <textarea class="comment-box" name="description" placeholder="Share your feedback or suggestions…"></textarea>
-        <br>
-        <button class="send-btn" id="sendFeedback">Send feedback</button>
-          </form>
-      </div>
+        <div class="info-section">
+            <form id="sendFeedbackForm">
+                <div class="info-title">About STAR&Car</div>
+                <p class="about-text">STAR&Car is a free platform to post and discover short-term accommodation rentals and cars. Whether you're a property owner, professional, student or a traveller, we make it easy.</p>
+                <textarea class="comment-box" name="description" placeholder="Share your feedback or suggestions…"></textarea>
+                <br>
+                <button class="send-btn" id="sendFeedback">Send feedback</button>
+            </form>
+        </div>
     </div>
 
-  </div>
+</div>
 
-  <script>
+<script>
     function showSection(sectionId) {
       document.getElementById('results').style.display = 'none';
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -691,7 +701,7 @@
         .then(() => alert('Feedback sent.'))
         .catch(e => console.log('Something went wrong.' + e))
       });
-  </script>
+</script>
 </body>
 
 </html>
