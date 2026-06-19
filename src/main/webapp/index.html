@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>STAR&Car — Short Term Accommodation Rental & Car</title>
+    <link rel="icon" type="image/svg" href="images/favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap" rel="stylesheet">
@@ -69,10 +70,10 @@
           .sub-brand {
             display: none;
           }
-          thead tr th:nth-child(5) {
+          thead tr th:nth-child(4) {
             display: none;
           }
-          tbody tr td:nth-child(5) {
+          tbody tr td:nth-child(4) {
             display: none;
           }
         }
@@ -86,10 +87,10 @@
           #nav-about {
             display: none;
           }
-          tbody tr td:nth-child(4), thead tr th:nth-child(4) {
+          tbody tr td:nth-child(3), thead tr th:nth-child(3) {
             display: none;
           }
-          tbody tr td:nth-child(5), thead tr th:nth-child(5) {
+          tbody tr td:nth-child(4), thead tr th:nth-child(4) {
             display: none;
           }
         }
@@ -97,10 +98,10 @@
           .brand {
             display: none;
           }
-          tbody tr td:nth-child(4), thead tr th:nth-child(4) {
+          tbody tr td:nth-child(3), thead tr th:nth-child(3) {
             display: none;
           }
-          tbody tr td:nth-child(5), thead tr th:nth-child(5) {
+          tbody tr td:nth-child(4), thead tr th:nth-child(4) {
             display: none;
           }
         }
@@ -112,10 +113,10 @@
           tbody tr td:nth-child(3), thead tr th:nth-child(3) {
             display: none;
           }
-          tbody tr td:nth-child(4), thead tr th:nth-child(4) {
+          tbody tr td:nth-child(3), thead tr th:nth-child(3) {
             display: none;
           }
-          tbody tr td:nth-child(5), thead tr th:nth-child(5) {
+          tbody tr td:nth-child(4), thead tr th:nth-child(4) {
             display: none;
           }
         }
@@ -237,7 +238,7 @@
 
         .addr-main {
           font-family: 'Newsreader', serif;
-          font-size: 11px;
+          font-size: 10px;
           font-weight: 700;
           color: #1e293b;
           letter-spacing: -0.2px;
@@ -245,7 +246,7 @@
 
         .addr-sub {
           font-family: 'Geist Mono', monospace;
-          font-size: 10px;
+          font-size: 8px;
           color: #94a3b8;
           margin-top: 2px;
         }
@@ -258,7 +259,7 @@
 
         .contact-phone {
           font-family: 'Geist Mono', monospace;
-          font-size: 10px;
+          font-size: 9px;
           color: #94a3b8;
           margin-top: 2px;
         }
@@ -320,7 +321,7 @@
           transform-origin: bottom right;
         }
 
-        tr:nth-child(-n+2) td img {
+        tr:nth-child(-n+3) td img {
           transform-origin: top right;
         }
 
@@ -540,9 +541,8 @@
     <table id="results">
         <thead>
         <tr>
-            <th style="width:10%">Address</th>
-            <th style="width:10%">Contact</th>
-            <th style="width:38%">Description</th>
+            <th style="width:10%">Contact Address</th>
+            <th style="width:48%">Description</th>
             <th style="width:16%">Owner Notes</th>
             <th style="width:5%; text-align:center">Count</th>
             <th style="width:21%">Images</th>
@@ -652,12 +652,10 @@
               const len = item.address.split(",").length;
               row.innerHTML = `
                 <td>
-                  <div class="addr-main">${item.address.split(",").splice(0, len-1).concat().toString()}</div>
-                  <div class="addr-sub">${item.address.split(',').slice(-1)[0].trim()}</div>
-                </td>
-                <td>
                   <div class="contact-email">${item.contactEmail}</div>
                   <div class="contact-phone">${item.contactPhoneNo}</div>
+                  <div class="addr-main">${item.address.split(",").splice(0, len-1).concat().toString()}</div>
+                  <div class="addr-sub">${item.address.split(',').slice(-1)[0].trim()}</div>
                 </td>
                 <td><div class="desc">${item.description}</div></td>
                 <td><div class="notes">${item.notes}</div></td>
