@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import jakarta.annotation.PostConstruct;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,15 +21,20 @@ public class PropertyRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    @PostConstruct
+    void ensureManagementColumn() {
+        jdbcTemplate.execute("ALTER TABLE PROPERTY ADD COLUMN IF NOT EXISTS manage_token_hash VARCHAR(64)");
+    }
+
     // Get property by ID
     public Property getPropertyById(Long propertyId) {
-        String sql = "SELECT property_id, address, description, notes FROM PROPERTY WHERE property_id = ?";
+        String sql = "SELECT property_id, address, description, notes, contact_email, contact_phone_no, manage_token_hash FROM PROPERTY WHERE property_id = ?";
         return jdbcTemplate.queryForObject(sql, new Object[]{propertyId}, new PropertyRowMapper(jdbcTemplate));
     }
 
     // Search by text in address or description (MariaDB-compatible)
     public List<Property> searchByText(String searchText) {
-        String sql = "SELECT p.property_id, p.address, p.description, p.notes, contact_email, contact_phone_no " +
+        String sql = "SELECT p.property_id, p.address, p.description, p.notes, contact_email, contact_phone_no, manage_token_hash " +
                 "FROM PROPERTY p " +
                 "LEFT JOIN ROOM r ON p.property_id = r.property_id " +
                 "WHERE LOWER(address) LIKE ? OR LOWER(description) LIKE ? OR LOWER(notes) LIKE ?  GROUP BY property_id";
@@ -46,7 +52,7 @@ public class PropertyRepository {
     public List<Property> listRoomsForZip(Long zip) {
         String zipPattern = "%" + zip + "%";
 
-        String sql = "SELECT p.property_id, p.address, p.description, p.notes, contact_email, contact_phone_no " +
+        String sql = "SELECT p.property_id, p.address, p.description, p.notes, contact_email, contact_phone_no, manage_token_hash " +
                 "FROM PROPERTY p " +
                 "LEFT JOIN ROOM r ON p.property_id = r.property_id " +
                 "WHERE p.address LIKE ? GROUP BY property_id";
@@ -63,8 +69,8 @@ public class PropertyRepository {
 
         final String INSERT_PROPERTY = """
         INSERT INTO PROPERTY 
-        (property_id, address, description, notes, contact_email, contact_phone_no)
-        VALUES (?, ?, ?, ?, ?, ?)
+        (property_id, address, description, notes, contact_email, contact_phone_no, manage_token_hash)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     """;
 
         final String INSERT_ROOM = """
@@ -81,7 +87,8 @@ public class PropertyRepository {
                     property.getDescription(),
                     property.getNotes(),
                     property.getContactEmail(),
-                    property.getContactPhoneNo()
+                    property.getContactPhoneNo(),
+                    property.getManageTokenHash()
             );
 
             // 2. Insert rooms (batch for performance)
@@ -105,5 +112,19 @@ public class PropertyRepository {
         } catch (Exception ex) {
             throw new RuntimeException("Failed to save property with rooms", ex);
         }
+    }
+
+    public void update(Long propertyId, com.resilientechnology.starandcar.record.PropertyDetailVO details) {
+        jdbcTemplate.update("""
+                UPDATE PROPERTY
+                SET address = ?, description = ?, notes = ?, contact_email = ?, contact_phone_no = ?
+                WHERE property_id = ?
+                """,
+                details.getAddress(), details.getDescription(), details.getNotes(),
+                details.getEmail(), details.getPhoneno(), propertyId);
+    }
+
+    public void delete(Long propertyId) {
+        jdbcTemplate.update("DELETE FROM PROPERTY WHERE property_id = ?", propertyId);
     }
 }

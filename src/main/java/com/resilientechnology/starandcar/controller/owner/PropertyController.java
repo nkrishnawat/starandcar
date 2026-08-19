@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import module java.base;
+import java.util.List;
 
 
 @RestController
@@ -40,9 +40,27 @@ public class PropertyController {
     }
 
     @PostMapping(value = "publish", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public boolean publish(
+    public PropertyService.PublishResult publish(
             @Valid @ModelAttribute PropertyDetailVO propertyDetailVO,
             @RequestParam("files") List<MultipartFile> files) {
         return propertyService.save(propertyDetailVO, files);
+    }
+
+    @GetMapping(value = "manage", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Property getForManagement(@RequestParam Long propertyId, @RequestParam String token) {
+        return propertyService.getForManagement(propertyId, token);
+    }
+
+    @PutMapping(value = "manage", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    public Property update(
+            @RequestParam Long propertyId,
+            @RequestParam String token,
+            @Valid @ModelAttribute PropertyDetailVO propertyDetailVO) {
+        return propertyService.update(propertyId, token, propertyDetailVO);
+    }
+
+    @DeleteMapping("manage")
+    public void delete(@RequestParam Long propertyId, @RequestParam String token) {
+        propertyService.delete(propertyId, token);
     }
 }

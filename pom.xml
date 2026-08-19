@@ -28,7 +28,7 @@
 		<url/>
 	</scm>
 	<properties>
-		<java.version>26</java.version>
+		<java.version>19</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -97,8 +97,8 @@
 							<artifactId>spring-boot-configuration-processor</artifactId>
 						</path>
 					</annotationProcessorPaths>
-					<source>26</source>
-					<target>26</target>
+					<source>19</source>
+					<target>19</target>
 				</configuration>
 			</plugin>
 			<plugin>

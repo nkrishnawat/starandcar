@@ -32,4 +32,7 @@ public class Property {
     @Column("contact_phone_no")
     String contactPhoneNo;
 
+    @Column("manage_token_hash")
+    String manageTokenHash;
+
 }

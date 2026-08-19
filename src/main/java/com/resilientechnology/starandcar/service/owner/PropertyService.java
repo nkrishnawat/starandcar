@@ -8,8 +8,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
-import module java.base;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.HashSet;
+import java.util.List;
+import java.util.HexFormat;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -34,8 +51,9 @@ public class PropertyService {
         return propertyRepository.getPropertyById(propertyID);
     }
 
-    public boolean save(PropertyDetailVO propertyDetailVO, List<MultipartFile> files) {
+    public PublishResult save(PropertyDetailVO propertyDetailVO, List<MultipartFile> files) {
             List<String> fileNames = new ArrayList<>();
+            String manageToken = generateToken();
 
             /** Save Images **/
             File dir = new File(uploadDir);
@@ -56,14 +74,58 @@ public class PropertyService {
             }
 
             if(fileNames !=null && fileNames.size() == files.size()) {
-                propertyRepository.save(to_entity(propertyDetailVO, fileNames));
+                Property property = to_entity(propertyDetailVO, fileNames, hashToken(manageToken));
+                propertyRepository.save(property);
+                return new PublishResult(property.getPropertyId(), manageToken);
             } else {
                 System.out.printf("Second: Something went wrong with file upload.");
             }
 
-            return fileNames !=null && fileNames.size() == files.size();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to save uploaded files");
         }
-    private Property to_entity(PropertyDetailVO propertyDetailVO, List<String> fileNames) {
+    public Property getForManagement(Long propertyId, String token) {
+        Property property = propertyRepository.getPropertyById(propertyId);
+        verifyToken(property, token);
+        return property;
+    }
+
+    public Property update(Long propertyId, String token, PropertyDetailVO details) {
+        Property property = propertyRepository.getPropertyById(propertyId);
+        verifyToken(property, token);
+        propertyRepository.update(propertyId, details);
+        return propertyRepository.getPropertyById(propertyId);
+    }
+
+    public void delete(Long propertyId, String token) {
+        Property property = propertyRepository.getPropertyById(propertyId);
+        verifyToken(property, token);
+        propertyRepository.delete(propertyId);
+    }
+
+    private void verifyToken(Property property, String token) {
+        if (token == null || token.isBlank() || property.getManageTokenHash() == null
+                || !MessageDigest.isEqual(property.getManageTokenHash().getBytes(StandardCharsets.UTF_8),
+                hashToken(token).getBytes(StandardCharsets.UTF_8))) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Invalid management link");
+        }
+    }
+
+    private String generateToken() {
+        byte[] token = new byte[32];
+        new SecureRandom().nextBytes(token);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(token);
+    }
+
+    private String hashToken(String token) {
+        try {
+            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest(token.getBytes(StandardCharsets.UTF_8)));
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("Unable to create management token", e);
+        }
+    }
+
+    private Property to_entity(PropertyDetailVO propertyDetailVO, List<String> fileNames, String tokenHash) {
         Long propertyID = System.currentTimeMillis();
         Room room = Room.builder().isAc(true)
                 .propertyId(propertyID)
@@ -81,6 +143,9 @@ public class PropertyService {
                 .contactEmail(propertyDetailVO.getEmail())
                 .notes(propertyDetailVO.getNotes())
                 .description(propertyDetailVO.getDescription())
+                .manageTokenHash(tokenHash)
                 .rooms(new ArrayList<>(set)).build();
     }
+
+    public record PublishResult(Long propertyId, String manageToken) {}
 }

@@ -5,7 +5,8 @@ CREATE TABLE IF NOT EXISTS PROPERTY (
     description VARCHAR(1000),
     notes VARCHAR(1000),
     contact_email VARCHAR(500),
-    contact_phone_no VARCHAR(30)
+    contact_phone_no VARCHAR(30),
+    manage_token_hash VARCHAR(64)
 );
 
 -- ROOM

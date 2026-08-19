@@ -438,6 +438,87 @@
           background: #4338ca;
         }
 
+        .manage-tools {
+          display: none;
+          max-width: 560px;
+          margin-top: 22px;
+          padding: 14px;
+          border: 0.5px solid #c7d2fe;
+          border-radius: 8px;
+          background: #eef2ff;
+        }
+
+        .manage-tools.visible {
+          display: block;
+        }
+
+        .manage-tools-title {
+          font-family: 'Geist Mono', monospace;
+          font-size: 10px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.7px;
+          color: #3730a3;
+          margin-bottom: 6px;
+        }
+
+        .manage-tools p {
+          color: #475569;
+          font-size: 12px;
+          line-height: 1.55;
+          margin-bottom: 10px;
+        }
+
+        .manage-link-row {
+          display: flex;
+          gap: 6px;
+        }
+
+        .manage-link-row input {
+          min-width: 0;
+          flex: 1;
+          border: 0.5px solid #cbd5e1;
+          border-radius: 6px;
+          padding: 7px 9px;
+          color: #334155;
+          background: white;
+          font-size: 11px;
+        }
+
+        .secondary-btn,
+        .danger-btn {
+          border: 0.5px solid #a5b4fc;
+          border-radius: 6px;
+          padding: 7px 11px;
+          font-family: 'Geist', sans-serif;
+          font-size: 12px;
+          cursor: pointer;
+          white-space: nowrap;
+        }
+
+        .secondary-btn {
+          color: #3730a3;
+          background: white;
+        }
+
+        .danger-btn {
+          color: #b91c1c;
+          border-color: #fecaca;
+          background: #fff1f2;
+        }
+
+        .manage-actions {
+          display: flex;
+          gap: 8px;
+          align-items: center;
+          margin-top: 10px;
+        }
+
+        .manage-status {
+          font-size: 12px;
+          color: #475569;
+        }
+
         /* ── Info Sections ── */
         .info-section {
           text-align: center;
@@ -588,6 +669,54 @@
                 </div>
                 <button type="submit" class="submit-btn">Publish listing</button>
             </form>
+            <div id="publishResult" class="manage-tools" aria-live="polite">
+                <div class="manage-tools-title">Your private listing link</div>
+                <p>Save or send this link. Anyone with it can edit or delete this listing, so treat it like a private key.</p>
+                <div class="manage-link-row">
+                    <input id="manageLink" type="text" readonly aria-label="Private listing management link">
+                    <button id="copyManageLink" class="secondary-btn" type="button">Copy link</button>
+                </div>
+                <div class="manage-actions">
+                    <a id="openManageLink" class="secondary-btn" target="_blank" rel="noopener">Open editor</a>
+                    <span id="publishStatus" class="manage-status"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="manageSection" class="section">
+        <div class="form-grid">
+            <div class="form-title">Manage listing</div>
+            <p id="manageIntro" class="about-text" style="text-align:left">Update your listing details or remove it from STAR&Car.</p>
+            <form id="manageForm">
+                <div class="form-row">
+                    <label>Address</label>
+                    <input type="text" name="address" placeholder="Full street address" required>
+                </div>
+                <div class="form-2col">
+                    <div class="form-row">
+                        <label>Email</label>
+                        <input type="text" name="email" placeholder="you@example.com">
+                    </div>
+                    <div class="form-row">
+                        <label>Phone</label>
+                        <input type="text" name="phoneno" placeholder="+91 XXXXX XXXXX">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label>Description</label>
+                    <textarea name="description" placeholder="Describe the property or vehicle"></textarea>
+                </div>
+                <div class="form-row">
+                    <label>Notes for guests and buyers</label>
+                    <textarea name="notes" placeholder="Add availability, pricing or other useful notes"></textarea>
+                </div>
+                <div class="manage-actions">
+                    <button type="submit" class="submit-btn">Save changes</button>
+                    <button type="button" id="deleteListing" class="danger-btn">Delete listing</button>
+                    <span id="manageStatus" class="manage-status"></span>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -676,6 +805,45 @@
       if (e.key === 'Enter') searchText();
     });
 
+    let managementParams = null;
+
+    function managementUrl(propertyId, token) {
+      const url = new URL(window.location.href);
+      url.search = '';
+      url.searchParams.set('manage', '1');
+      url.searchParams.set('propertyId', propertyId);
+      url.searchParams.set('token', token);
+      return url.toString();
+    }
+
+    function fillManagementForm(item) {
+      const form = document.getElementById('manageForm');
+      form.elements.address.value = item.address || '';
+      form.elements.email.value = item.contactEmail || '';
+      form.elements.phoneno.value = item.contactPhoneNo || '';
+      form.elements.description.value = item.description || '';
+      form.elements.notes.value = item.notes || '';
+    }
+
+    function openManagementPage() {
+      const params = new URLSearchParams(window.location.search);
+      const propertyId = params.get('propertyId');
+      const token = params.get('token');
+      if (params.get('manage') !== '1' || !propertyId || !token) return;
+
+      managementParams = { propertyId, token };
+      showSection('manageSection');
+      fetch(`property/manage?propertyId=${encodeURIComponent(propertyId)}&token=${encodeURIComponent(token)}`)
+        .then(res => {
+          if (!res.ok) throw new Error('This management link is invalid or expired.');
+          return res.json();
+        })
+        .then(fillManagementForm)
+        .catch(error => {
+          document.getElementById('manageStatus').textContent = error.message;
+        });
+    }
+
     document.getElementById('formId').addEventListener('submit', function (e) {
       e.preventDefault();
       const formData = new FormData(this);
@@ -683,9 +851,74 @@
         method: 'POST',
         body: formData
       })
-        .then(res => res.text())
-        .then(() => alert('Listing published successfully!'))
-        .catch(err => console.error(err));
+        .then(res => {
+          if (!res.ok) throw new Error('Unable to publish listing.');
+          return res.json();
+        })
+        .then(result => {
+          const link = managementUrl(result.propertyId, result.manageToken);
+          document.getElementById('manageLink').value = link;
+          document.getElementById('openManageLink').href = link;
+          document.getElementById('publishResult').classList.add('visible');
+          document.getElementById('publishStatus').textContent = 'Keep this link safe.';
+          this.reset();
+        })
+        .catch(err => {
+          document.getElementById('publishStatus').textContent = err.message;
+          document.getElementById('publishResult').classList.add('visible');
+        });
+    });
+
+    document.getElementById('copyManageLink').addEventListener('click', async function () {
+      const link = document.getElementById('manageLink').value;
+      try {
+        await navigator.clipboard.writeText(link);
+        document.getElementById('publishStatus').textContent = 'Link copied.';
+      } catch {
+        document.getElementById('manageLink').select();
+        document.getElementById('publishStatus').textContent = 'Select and copy the link.';
+      }
+    });
+
+    document.getElementById('manageForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!managementParams) return;
+      const body = new URLSearchParams(new FormData(this));
+      body.set('propertyId', managementParams.propertyId);
+      body.set('token', managementParams.token);
+      fetch('property/manage', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body
+      })
+        .then(res => {
+          if (!res.ok) throw new Error('Unable to save changes.');
+          return res.json();
+        })
+        .then(() => {
+          document.getElementById('manageStatus').textContent = 'Changes saved.';
+        })
+        .catch(err => {
+          document.getElementById('manageStatus').textContent = err.message;
+        });
+    });
+
+    document.getElementById('deleteListing').addEventListener('click', function () {
+      if (!managementParams || !confirm('Delete this listing permanently? This cannot be undone.')) return;
+      const { propertyId, token } = managementParams;
+      fetch(`property/manage?propertyId=${encodeURIComponent(propertyId)}&token=${encodeURIComponent(token)}`, {
+        method: 'DELETE'
+      })
+        .then(res => {
+          if (!res.ok) throw new Error('Unable to delete listing.');
+          document.getElementById('manageStatus').textContent = 'Listing deleted.';
+          document.getElementById('manageForm').reset();
+          history.replaceState({}, '', window.location.pathname);
+          showSection('post4rent');
+        })
+        .catch(err => {
+          document.getElementById('manageStatus').textContent = err.message;
+        });
     });
 
     document.getElementById('sendFeedbackForm').addEventListener('submit', function(e) {
@@ -698,6 +931,8 @@
         .then(() => alert('Feedback sent.'))
         .catch(e => console.log('Something went wrong.' + e))
       });
+
+    openManagementPage();
 </script>
 </body>
 
