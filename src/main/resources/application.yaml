@@ -13,8 +13,10 @@ spring:
     driver-class-name: org.mariadb.jdbc.Driver
   servlet:
     multipart:
-      max-file-size: 20MB
-      max-request-size: 20MB
+      max-file-size: 50MB
+      max-request-size: 100MB
+  tomcat:
+    max-swallow-size: 100MB
   sql:
     init:
       mode: never
