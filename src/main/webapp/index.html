@@ -636,6 +636,18 @@
     <div id="post4rent" class="section">
         <div class="form-grid">
             <div class="form-title">Add listing</div>
+            <div id="publishResult" class="manage-tools" aria-live="polite">
+                <div class="manage-tools-title">Your private listing link</div>
+                <p>Save or send this link. Anyone with it can edit or delete this listing, so treat it like a private key.</p>
+                <div class="manage-link-row">
+                    <input id="manageLink" type="text" readonly aria-label="Private listing management link">
+                    <button id="copyManageLink" class="secondary-btn" type="button">Copy link</button>
+                </div>
+                <div class="manage-actions">
+                    <a id="openManageLink" class="secondary-btn" target="_blank" rel="noopener">Open editor</a>
+                    <span id="publishStatus" class="manage-status"></span>
+                </div>
+            </div>
             <form id="formId" enctype="multipart/form-data">
                 <div class="form-row">
                     <label>Address</label>
@@ -669,18 +681,6 @@
                 </div>
                 <button type="submit" class="submit-btn">Publish listing</button>
             </form>
-            <div id="publishResult" class="manage-tools" aria-live="polite">
-                <div class="manage-tools-title">Your private listing link</div>
-                <p>Save or send this link. Anyone with it can edit or delete this listing, so treat it like a private key.</p>
-                <div class="manage-link-row">
-                    <input id="manageLink" type="text" readonly aria-label="Private listing management link">
-                    <button id="copyManageLink" class="secondary-btn" type="button">Copy link</button>
-                </div>
-                <div class="manage-actions">
-                    <a id="openManageLink" class="secondary-btn" target="_blank" rel="noopener">Open editor</a>
-                    <span id="publishStatus" class="manage-status"></span>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -861,6 +861,7 @@
           document.getElementById('openManageLink').href = link;
           document.getElementById('publishResult').classList.add('visible');
           document.getElementById('publishStatus').textContent = 'Keep this link safe.';
+          alert('Listing published successfully!');
           this.reset();
         })
         .catch(err => {
