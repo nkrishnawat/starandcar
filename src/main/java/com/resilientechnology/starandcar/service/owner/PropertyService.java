@@ -6,7 +6,9 @@ import com.resilientechnology.starandcar.entity.Room;
 import com.resilientechnology.starandcar.repository.owner.PropertyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
@@ -38,6 +40,9 @@ public class PropertyService {
     @Value("${file.upload-dir}")
     private String uploadDir;
 
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
+
 
     public List<Property> roomsByZip(Long zip) {
         return propertyRepository.listRoomsForZip(zip);
@@ -51,38 +56,41 @@ public class PropertyService {
         return propertyRepository.getPropertyById(propertyID);
     }
 
+    @Transactional // Ensures the method runs in a DB transaction
     public PublishResult save(PropertyDetailVO propertyDetailVO, List<MultipartFile> files) {
-            List<String> fileNames = new ArrayList<>();
-            String manageToken = generateToken();
+        List<String> fileNames = new ArrayList<>();
+        String manageToken = generateToken();
 
-            /** Save Images **/
-            File dir = new File(uploadDir);
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
-
-            for (MultipartFile file : files) {
-                String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-                Path path = Paths.get(uploadDir, fileName);
-                try {
-                    Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-                } catch (IOException e) {
-                    System.out.printf("First: Something went wrong with file upload.");
-                    throw new RuntimeException(e);
-                }
-                fileNames.add(fileName);
-            }
-
-            if(fileNames !=null && fileNames.size() == files.size()) {
-                Property property = to_entity(propertyDetailVO, fileNames, hashToken(manageToken));
-                propertyRepository.save(property);
-                return new PublishResult(property.getPropertyId(), manageToken);
-            } else {
-                System.out.printf("Second: Something went wrong with file upload.");
-            }
-
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to save uploaded files");
+        /** Save Images **/
+        File dir = new File(uploadDir);
+        if (!dir.exists()) {
+            dir.mkdirs();
         }
+
+        for (MultipartFile file : files) {
+            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+            Path path = Paths.get(uploadDir, fileName);
+            try {
+                Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+                System.out.printf("First: Something went wrong with file upload.");
+                throw new RuntimeException(e);
+            }
+            fileNames.add(fileName);
+        }
+
+        if (fileNames != null && fileNames.size() == files.size()) {
+            Property property = to_entity(propertyDetailVO, fileNames, hashToken(manageToken));
+            propertyRepository.save(property);
+            eventPublisher.publishEvent(new PropertyCreatedEvent(propertyDetailVO));
+            return new PublishResult(property.getPropertyId(), manageToken);
+        } else {
+            System.out.printf("Second: Something went wrong with file upload.");
+        }
+
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to save uploaded files");
+    }
+
     public Property getForManagement(Long propertyId, String token) {
         Property property = propertyRepository.getPropertyById(propertyId);
         verifyToken(property, token);
@@ -129,7 +137,7 @@ public class PropertyService {
         Long propertyID = System.currentTimeMillis();
         Room room = Room.builder().isAc(true)
                 .propertyId(propertyID)
-                .roomId((System.currentTimeMillis()/29)*13)
+                .roomId((System.currentTimeMillis() / 29) * 13)
                 .imageUrlS3(fileNames.stream().map(fName ->
                         uploadDir + "/" + fName).collect(Collectors.toList())).build();
 
@@ -139,7 +147,7 @@ public class PropertyService {
         return Property.builder()
                 .propertyId(propertyID)
                 .address(propertyDetailVO.getAddress())
-                .contactPhoneNo(propertyDetailVO.getPhoneno())
+                .contactPhoneNo(propertyDetailVO.getPhone())
                 .contactEmail(propertyDetailVO.getEmail())
                 .notes(propertyDetailVO.getNotes())
                 .description(propertyDetailVO.getDescription())
@@ -147,5 +155,6 @@ public class PropertyService {
                 .rooms(new ArrayList<>(set)).build();
     }
 
-    public record PublishResult(Long propertyId, String manageToken) {}
+    public record PublishResult(Long propertyId, String manageToken) {
+    }
 }
