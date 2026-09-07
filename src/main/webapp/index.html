@@ -81,9 +81,6 @@
           .nav-sep {
             display: none;
           }
-          #nav-contact {
-            display: none;
-          }
           #nav-about {
             display: none;
           }
@@ -262,6 +259,47 @@
           font-size: 9px;
           color: #94a3b8;
           margin-top: 2px;
+        }
+
+        .contact-cell {
+          min-width: 112px;
+        }
+
+        .listing-address {
+          margin-top: 8px;
+        }
+
+        .mail-action {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          border: 0.5px solid #c7d2fe;
+          border-radius: 6px;
+          padding: 6px 8px;
+          background: #eef2ff;
+          color: #4338ca;
+          font-family: 'Geist', sans-serif;
+          font-size: 11px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background 0.12s, border-color 0.12s, transform 0.12s;
+        }
+
+        .mail-action:hover {
+          background: #e0e7ff;
+          border-color: #818cf8;
+          transform: translateY(-1px);
+        }
+
+        .mail-icon {
+          display: inline-flex;
+          width: 14px;
+          height: 14px;
+        }
+
+        .mail-icon svg {
+          width: 100%;
+          height: 100%;
         }
 
         .desc {
@@ -594,6 +632,391 @@
           border-color: #4f46e5;
           color: #4f46e5;
         }
+
+        /* ── StarMail ── */
+        .starmail-intro {
+          max-width: 760px;
+          margin-bottom: 18px;
+        }
+
+        .starmail-subtitle {
+          color: #64748b;
+          font-family: 'Newsreader', serif;
+          font-size: 15px;
+          font-style: italic;
+          line-height: 1.55;
+        }
+
+        .starmail-notification {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          max-width: 760px;
+          margin: 0 0 16px;
+          padding: 10px 12px;
+          border: 0.5px solid #86efac;
+          border-radius: 7px;
+          background: #f0fdf4;
+          color: #166534;
+          font-size: 12px;
+          line-height: 1.45;
+        }
+
+        .starmail-notification[hidden] {
+          display: none;
+        }
+
+        .starmail-notification button {
+          flex: 0 0 auto;
+          border: 0.5px solid #86efac;
+          border-radius: 5px;
+          padding: 5px 8px;
+          background: #ffffff;
+          color: #166534;
+          font-family: 'Geist', sans-serif;
+          font-size: 11px;
+          cursor: pointer;
+        }
+
+        .mail-incoming-toast {
+          position: fixed;
+          top: 68px;
+          right: 24px;
+          z-index: 25;
+          display: grid;
+          gap: 3px;
+          width: min(360px, calc(100vw - 32px));
+          padding: 12px 14px;
+          border: 0.5px solid #86efac;
+          border-radius: 8px;
+          background: #f0fdf4;
+          box-shadow: 0 12px 30px rgba(15, 23, 42, 0.16);
+          color: #166534;
+          font-size: 12px;
+          line-height: 1.45;
+        }
+
+        .mail-incoming-toast[hidden] {
+          display: none;
+        }
+
+        .mail-incoming-toast strong {
+          font-family: 'Newsreader', serif;
+          font-size: 16px;
+          font-style: italic;
+        }
+
+        .mail-incoming-toast button {
+          justify-self: start;
+          margin-top: 5px;
+          border: 0.5px solid #86efac;
+          border-radius: 5px;
+          padding: 5px 8px;
+          background: #ffffff;
+          color: #166534;
+          font-family: 'Geist', sans-serif;
+          font-size: 11px;
+          cursor: pointer;
+        }
+
+        .notification-tools {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          max-width: 760px;
+          margin: -8px 0 16px;
+        }
+
+        .notification-tools .secondary-btn {
+          padding: 5px 8px;
+          font-size: 11px;
+        }
+
+        .notification-permission {
+          color: #94a3b8;
+          font-size: 11px;
+        }
+
+        .mail-delivery-status {
+          max-width: 760px;
+          margin: -5px 0 14px;
+          padding: 8px 10px;
+          border-radius: 6px;
+          font-size: 12px;
+          line-height: 1.45;
+        }
+
+        .mail-delivery-status.success {
+          border: 0.5px solid #86efac;
+          background: #f0fdf4;
+          color: #166534;
+        }
+
+        .mail-delivery-status.failure {
+          border: 0.5px solid #fecaca;
+          background: #fff1f2;
+          color: #991b1b;
+        }
+
+        .mail-delivery-status[hidden] {
+          display: none;
+        }
+
+        .mailbox-bar {
+          display: flex;
+          align-items: end;
+          gap: 8px;
+          max-width: 760px;
+          margin-bottom: 16px;
+        }
+
+        .mailbox-field {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .mailbox-label,
+        .mail-form label {
+          display: block;
+          margin-bottom: 4px;
+          color: #64748b;
+          font-family: 'Geist Mono', monospace;
+          font-size: 10px;
+          font-weight: 600;
+          letter-spacing: 0.7px;
+          text-transform: uppercase;
+        }
+
+        .mailbox-field input,
+        .mail-form input,
+        .mail-form textarea {
+          width: 100%;
+          border: 0.5px solid #cbd5e1;
+          border-radius: 6px;
+          padding: 8px 10px;
+          background: #ffffff;
+          color: #334155;
+          font-family: 'Geist', sans-serif;
+          font-size: 13px;
+          outline: none;
+        }
+
+        .mailbox-field input:focus,
+        .mail-form input:focus,
+        .mail-form textarea:focus {
+          border-color: #4f46e5;
+          box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.08);
+        }
+
+        .mailbox-save {
+          margin: 0;
+        }
+
+        .mail-folders {
+          display: flex;
+          gap: 7px;
+          padding-bottom: 12px;
+          border-bottom: 0.5px solid #e2e8f0;
+        }
+
+        .mail-folder {
+          border: 0.5px solid #cbd5e1;
+          border-radius: 6px;
+          padding: 6px 10px;
+          background: #ffffff;
+          color: #64748b;
+          font-family: 'Geist', sans-serif;
+          font-size: 12px;
+          cursor: pointer;
+        }
+
+        .mail-folder.active,
+        .mail-folder:hover {
+          border-color: #818cf8;
+          background: #eef2ff;
+          color: #3730a3;
+        }
+
+        .mail-count {
+          display: inline-flex;
+          min-width: 18px;
+          justify-content: center;
+          margin-left: 3px;
+          border-radius: 10px;
+          background: #e0e7ff;
+          color: #4338ca;
+          font-family: 'Geist Mono', monospace;
+          font-size: 10px;
+        }
+
+        .mail-list {
+          max-width: 760px;
+        }
+
+        .mail-empty {
+          padding: 28px 4px;
+          color: #94a3b8;
+          font-family: 'Newsreader', serif;
+          font-size: 16px;
+          font-style: italic;
+        }
+
+        .mail-card {
+          padding: 14px 4px;
+          border-bottom: 0.5px solid #e8edf2;
+        }
+
+        .mail-card:last-child {
+          border-bottom: none;
+        }
+
+        .mail-card-top {
+          display: flex;
+          justify-content: space-between;
+          gap: 12px;
+          margin-bottom: 5px;
+        }
+
+        .mail-card-subject {
+          color: #1e293b;
+          font-size: 14px;
+          font-weight: 600;
+        }
+
+        .mail-card-date {
+          flex: 0 0 auto;
+          color: #94a3b8;
+          font-family: 'Geist Mono', monospace;
+          font-size: 10px;
+        }
+
+        .mail-card-meta {
+          color: #64748b;
+          font-family: 'Geist Mono', monospace;
+          font-size: 10px;
+          line-height: 1.5;
+        }
+
+        .mail-card-body {
+          max-width: 640px;
+          margin-top: 8px;
+          color: #475569;
+          font-size: 13px;
+          line-height: 1.55;
+          white-space: pre-wrap;
+        }
+
+        /* ── Compose dialog ── */
+        .modal-backdrop[hidden] {
+          display: none;
+        }
+
+        .modal-backdrop {
+          position: fixed;
+          inset: 0;
+          z-index: 20;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 18px;
+          background: rgba(15, 23, 42, 0.52);
+        }
+
+        .mail-modal {
+          width: min(100%, 560px);
+          max-height: calc(100vh - 36px);
+          overflow: auto;
+          padding: 22px;
+          border: 0.5px solid #cbd5e1;
+          border-radius: 10px;
+          background: #ffffff;
+          box-shadow: 0 24px 70px rgba(15, 23, 42, 0.24);
+        }
+
+        .mail-modal-title {
+          margin-bottom: 4px;
+          color: #1e293b;
+          font-family: 'Newsreader', serif;
+          font-size: 24px;
+          font-style: italic;
+          font-weight: 700;
+        }
+
+        .mail-modal-context {
+          margin-bottom: 16px;
+          color: #64748b;
+          font-family: 'Geist Mono', monospace;
+          font-size: 10px;
+          line-height: 1.5;
+        }
+
+        .mail-form-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 10px;
+        }
+
+        .mail-form-row,
+        .mail-form > .form-row {
+          margin-bottom: 11px;
+        }
+
+        .mail-form textarea {
+          min-height: 132px;
+          resize: vertical;
+          line-height: 1.5;
+        }
+
+        .mail-modal-actions {
+          display: flex;
+          justify-content: flex-end;
+          gap: 8px;
+          margin-top: 14px;
+        }
+
+        .cancel-btn {
+          border: 0.5px solid #cbd5e1;
+          border-radius: 6px;
+          padding: 8px 14px;
+          background: #ffffff;
+          color: #64748b;
+          font-family: 'Geist', sans-serif;
+          font-size: 13px;
+          cursor: pointer;
+        }
+
+        .mail-status {
+          flex: 1;
+          align-self: center;
+          color: #64748b;
+          font-size: 12px;
+        }
+
+        @media (max-width: 560px) {
+          .mailbox-bar,
+          .mail-form-row {
+            display: block;
+          }
+
+          .mailbox-field,
+          .mail-form-row > div {
+            margin-bottom: 10px;
+          }
+
+          .mailbox-save {
+            width: 100%;
+          }
+
+          .mail-card-top {
+            display: block;
+          }
+
+          .mail-card-date {
+            display: block;
+            margin-top: 4px;
+          }
+        }
     </style>
 </head>
 
@@ -612,17 +1035,22 @@
         <div class="nav-links">
             <a onclick="showSection('post4rent')" id="nav-publish">Publish</a>
             <span class="nav-sep">|</span>
-            <a onclick="showSection('contactus')" id="nav-contact">Contact</a>
+            <a onclick="showSection('starmail')" id="nav-starmail">StarMail</a>
             <span class="nav-sep">|</span>
             <a onclick="showSection('about')" id="nav-about">About</a>
         </div>
     </nav>
+    <div id="mailIncomingToast" class="mail-incoming-toast" hidden role="alert" aria-live="assertive">
+        <strong>StarMail</strong>
+        <span id="mailIncomingToastText"></span>
+        <button id="openIncomingMail" type="button">Open StarMail</button>
+    </div>
 
     <!-- Results Table -->
     <table id="results">
         <thead>
         <tr>
-            <th style="width:10%">Contact Address</th>
+            <th style="width:14%">Contact</th>
             <th style="width:48%">Description</th>
             <th style="width:16%">Owner Notes</th>
             <th style="width:5%; text-align:center">Count</th>
@@ -631,6 +1059,39 @@
         </thead>
         <tbody id="table-body"></tbody>
     </table>
+
+    <!-- StarMail compose dialog -->
+    <div id="mailComposer" class="modal-backdrop" hidden>
+        <div class="mail-modal" role="dialog" aria-modal="true" aria-labelledby="mail-modal-title">
+            <div id="mail-modal-title" class="mail-modal-title">Write a StarMail</div>
+            <div id="mailModalContext" class="mail-modal-context"></div>
+            <form id="mailForm" class="mail-form">
+                <div class="mail-form-row">
+                    <div>
+                        <label for="mailFrom">From</label>
+                        <input id="mailFrom" name="from" type="email" placeholder="you@example.com" required>
+                    </div>
+                    <div>
+                        <label for="mailTo">To</label>
+                        <input id="mailTo" name="to" type="email" placeholder="recipient@example.com" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label for="mailSubject">Subject</label>
+                    <input id="mailSubject" name="subject" type="text" required>
+                </div>
+                <div class="form-row">
+                    <label for="mailBody">Message</label>
+                    <textarea id="mailBody" name="body" required></textarea>
+                </div>
+                <div class="mail-modal-actions">
+                    <span id="mailStatus" class="mail-status" aria-live="polite"></span>
+                    <button id="cancelMail" class="cancel-btn" type="button">Cancel</button>
+                    <button class="submit-btn" type="submit">Send StarMail</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Publish Section -->
     <div id="post4rent" class="section">
@@ -720,13 +1181,34 @@
         </div>
     </div>
 
-    <!-- Contact Section -->
-    <div id="contactus" class="section">
-        <div class="info-section">
-            <div class="info-title">Get in touch</div>
-            <div class="contact-item">📞 +91 90010 21015</div>
-            <div class="contact-item">📧 logspate@gmail.com</div>
+    <!-- StarMail Section -->
+    <div id="starmail" class="section">
+        <div class="starmail-intro">
+            <div class="form-title">StarMail</div>
+            <p class="starmail-subtitle">A private mailbox for this browser. Send a note to anyone from any address, then come back later to find your local mail.</p>
         </div>
+        <div id="starmailNotification" class="starmail-notification" hidden role="status" aria-live="assertive">
+            <span id="starmailNotificationText"></span>
+            <button id="markMailSeen" type="button">Mark as read</button>
+        </div>
+        <div class="notification-tools">
+            <button id="enableMailNotifications" class="secondary-btn" type="button">Enable browser alerts</button>
+            <span id="notificationPermission" class="notification-permission"></span>
+        </div>
+        <div id="mailDeliveryStatus" class="mail-delivery-status" hidden role="status" aria-live="polite"></div>
+        <div class="mailbox-bar">
+            <div class="mailbox-field">
+                <label class="mailbox-label" for="mailboxEmail">Your mailbox</label>
+                <input id="mailboxEmail" type="email" placeholder="you@example.com" autocomplete="email">
+            </div>
+            <button id="saveMailbox" class="submit-btn mailbox-save" type="button">Save mailbox</button>
+        </div>
+        <div class="mail-folders" role="tablist" aria-label="StarMail folders">
+            <button class="mail-folder active" type="button" data-folder="inbox">Inbox <span id="inboxCount" class="mail-count">0</span></button>
+            <button class="mail-folder" type="button" data-folder="sent">Sent <span id="sentCount" class="mail-count">0</span></button>
+            <button class="mail-folder" type="button" data-folder="all">All mail <span id="allCount" class="mail-count">0</span></button>
+        </div>
+        <div id="mailList" class="mail-list" aria-live="polite"></div>
     </div>
 
     <!-- About Section -->
@@ -745,13 +1227,223 @@
 </div>
 
 <script>
-    function showSection(sectionId) {
+    const STARMAIL_MESSAGES_KEY = 'starMailMessages';
+    const STARMAIL_MAILBOX_KEY = 'starMailMailbox';
+    const STARMAIL_LAST_SEEN_PREFIX = 'starMailLastSeen:';
+    const defaultPageTitle = document.title;
+    let activeMailFolder = 'inbox';
+    let composeListing = null;
+    const announcedMailIds = new Set();
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function readStarMail() {
+      try {
+        const messages = JSON.parse(localStorage.getItem(STARMAIL_MESSAGES_KEY) || '[]');
+        return Array.isArray(messages) ? messages : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function writeStarMail(messages) {
+      localStorage.setItem(STARMAIL_MESSAGES_KEY, JSON.stringify(messages));
+    }
+
+    function mailboxAddress() {
+      return (localStorage.getItem(STARMAIL_MAILBOX_KEY) || '').trim().toLowerCase();
+    }
+
+    function lastSeenKey(mailbox) {
+      return `${STARMAIL_LAST_SEEN_PREFIX}${mailbox}`;
+    }
+
+    function unreadMessages(messages, mailbox) {
+      if (!mailbox) return [];
+      const lastSeen = Number(localStorage.getItem(lastSeenKey(mailbox)) || 0);
+      return messages.filter(message => {
+        const sentAt = new Date(message.sentAt).getTime();
+        return message.to && message.to.toLowerCase() === mailbox && sentAt > lastSeen;
+      });
+    }
+
+    function mailIcon() {
+      return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m3 7 9 6 9-6"></path></svg>`;
+    }
+
+    function formatMailDate(value) {
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return 'Unknown date';
+      return date.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+    }
+
+    function updateMailFolderButtons() {
+      document.querySelectorAll('.mail-folder').forEach(button => {
+        button.classList.toggle('active', button.dataset.folder === activeMailFolder);
+      });
+    }
+
+    function updateNotificationPermission() {
+      const button = document.getElementById('enableMailNotifications');
+      const status = document.getElementById('notificationPermission');
+      if (!('Notification' in window)) {
+        button.hidden = true;
+        status.textContent = 'Browser alerts are not supported here.';
+        return;
+      }
+      if (Notification.permission === 'granted') {
+        button.textContent = 'Browser alerts enabled';
+        button.disabled = true;
+        status.textContent = '';
+      } else if (Notification.permission === 'denied') {
+        button.textContent = 'Browser alerts blocked';
+        button.disabled = true;
+        status.textContent = 'Allow notifications in your browser settings to re-enable them.';
+      } else {
+        button.textContent = 'Enable browser alerts';
+        button.disabled = false;
+        status.textContent = '';
+      }
+    }
+
+    function announceNewMail(messages) {
+      const mailbox = mailboxAddress();
+      const incoming = messages.filter(message => message.to && message.to.toLowerCase() === mailbox);
+      if (!incoming.length) return;
+
+      const newIncoming = incoming.filter(message => !announcedMailIds.has(message.id));
+      incoming.forEach(message => announcedMailIds.add(message.id));
+      const count = incoming.length;
+      const label = count === 1 ? 'A new message is waiting for you in StarMail- Starandcar.com' : `${count} new messages are waiting for you in StarMail- Starandcar.com`;
+      document.getElementById('starmailNotificationText').textContent = label;
+      document.getElementById('starmailNotification').hidden = false;
+      document.getElementById('mailIncomingToastText').textContent = label;
+      document.getElementById('mailIncomingToast').hidden = false;
+      document.title = `(${count}) StarMail - STAR&Car`;
+
+      if (newIncoming.length && document.hidden && 'Notification' in window && Notification.permission === 'granted') {
+        new Notification('StarMail - Starandcar.com', {
+          body: label
+        });
+      }
+    }
+
+    function markMailAsSeen() {
+      const mailbox = mailboxAddress();
+      if (!mailbox) return;
+      localStorage.setItem(lastSeenKey(mailbox), String(Date.now()));
+      document.title = defaultPageTitle;
+      document.getElementById('mailIncomingToast').hidden = true;
+      renderStarMail();
+    }
+
+    function renderStarMail({ announce = false } = {}) {
+      const messages = readStarMail().sort((a, b) => new Date(b.sentAt) - new Date(a.sentAt));
+      const mailbox = mailboxAddress();
+      const inbox = mailbox ? messages.filter(message => message.to.toLowerCase() === mailbox) : [];
+      const sent = mailbox ? messages.filter(message => message.from.toLowerCase() === mailbox) : [];
+      const unread = unreadMessages(messages, mailbox);
+      const list = activeMailFolder === 'inbox' ? inbox : activeMailFolder === 'sent' ? sent : messages;
+
+      document.getElementById('mailboxEmail').value = localStorage.getItem(STARMAIL_MAILBOX_KEY) || '';
+      document.getElementById('inboxCount').textContent = unread.length;
+      document.getElementById('sentCount').textContent = sent.length;
+      document.getElementById('allCount').textContent = messages.length;
+      document.getElementById('starmailNotification').hidden = unread.length === 0;
+      if (unread.length) {
+        document.getElementById('starmailNotificationText').textContent = unread.length === 1
+          ? 'A new message is waiting for you in StarMail- Starandcar.com'
+          : `${unread.length} new messages are waiting for you in StarMail- Starandcar.com`;
+        if (announce) announceNewMail(unread);
+      } else if (!mailbox) {
+        document.title = defaultPageTitle;
+      }
+      updateNotificationPermission();
+      updateMailFolderButtons();
+
+      const mailList = document.getElementById('mailList');
+      if (activeMailFolder !== 'all' && !mailbox) {
+        mailList.innerHTML = '<div class="mail-empty">Add your email above to open this mailbox. Your messages stay in this browser only.</div>';
+        return;
+      }
+
+      if (list.length === 0) {
+        const folderName = activeMailFolder === 'inbox' ? 'inbox' : activeMailFolder === 'sent' ? 'sent mail' : 'mail';
+        mailList.innerHTML = `<div class="mail-empty">Your ${folderName} is empty.</div>`;
+        return;
+      }
+
+      mailList.innerHTML = list.map(message => `
+        <article class="mail-card">
+          <div class="mail-card-top">
+            <div class="mail-card-subject">${escapeHtml(message.subject)}</div>
+            <div class="mail-card-date">${escapeHtml(formatMailDate(message.sentAt))}</div>
+          </div>
+          <div class="mail-card-meta">From ${escapeHtml(message.from)} · To ${escapeHtml(message.to)}${message.listingAddress ? ` · ${escapeHtml(message.listingAddress)}` : ''}</div>
+          <div class="mail-card-body">${escapeHtml(message.body)}</div>
+        </article>
+      `).join('');
+    }
+
+    function openCompose(item) {
+      composeListing = item;
+      const address = item.address || 'this listing';
+      const recipient = item.contactEmail || '';
+      document.getElementById('mailModalContext').textContent = `About ${address}${recipient ? ` · ${recipient}` : ''}`;
+      document.getElementById('mailFrom').value = localStorage.getItem(STARMAIL_MAILBOX_KEY) || '';
+      document.getElementById('mailTo').value = recipient;
+      document.getElementById('mailSubject').value = `Inquiry about ${address}`;
+      document.getElementById('mailBody').value = `Hi, I found your STAR&Car listing at ${address}. I'm interested and would like to know more about availability and next steps.`;
+      document.getElementById('mailStatus').textContent = '';
+      document.getElementById('mailComposer').hidden = false;
+      document.getElementById('mailFrom').focus();
+    }
+
+    function closeCompose() {
+      document.getElementById('mailComposer').hidden = true;
+      composeListing = null;
+    }
+
+    function sendEmailNotification(message) {
+      return fetch('notifications/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          recipient: message.to,
+          subject: message.subject,
+          body: message.body,
+          replyTo: message.from
+        })
+      }).then(response => {
+        if (!response.ok) throw new Error('Email delivery failed.');
+      });
+    }
+
+    function showMailDeliveryStatus(message, type) {
+      const status = document.getElementById('mailDeliveryStatus');
+      status.textContent = message;
+      status.className = `mail-delivery-status ${type}`;
+      status.hidden = false;
+    }
+
+    function showSection(sectionId, resetMailFolder = true) {
       document.getElementById('results').style.display = 'none';
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
       document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
       document.getElementById(sectionId).classList.add('active');
-      const map = { post4rent: 'nav-publish', contactus: 'nav-contact', about: 'nav-about' };
+      const map = { post4rent: 'nav-publish', starmail: 'nav-starmail', about: 'nav-about' };
       if (map[sectionId]) document.getElementById(map[sectionId]).classList.add('active');
+      if (sectionId === 'starmail') {
+        if (resetMailFolder) activeMailFolder = 'inbox';
+        renderStarMail({ announce: true });
+      }
     }
 
     function searchText() {
@@ -780,17 +1472,24 @@
               const row = document.createElement('tr');
               const len = item.address.split(",").length;
               row.innerHTML = `
-                <td>
-                  <div class="contact-email">${item.contactEmail}</div>
-                  <div class="contact-phone">${item.contactPhoneNo}</div>
-                  <div class="addr-main">${item.address.split(",").splice(0, len-1).concat().toString()}</div>
-                  <div class="addr-sub">${item.address.split(',').slice(-1)[0].trim()}</div>
+                <td class="contact-cell">
+                  <div class="contact-action"></div>
+                  <div class="contact-phone">${escapeHtml(item.contactPhoneNo)}</div>
+                  <div class="addr-main listing-address">${escapeHtml(item.address.split(",").splice(0, len-1).concat().toString())}</div>
+                  <div class="addr-sub">${escapeHtml(item.address.split(',').slice(-1)[0].trim())}</div>
                 </td>
-                <td><div class="desc">${item.description}</div></td>
-                <td><div class="notes">${item.notes}</div></td>
+                <td><div class="desc">${escapeHtml(item.description)}</div></td>
+                <td><div class="notes">${escapeHtml(item.notes)}</div></td>
                 <td style="text-align:center"><span class="room-badge">${item.rooms.length}</span></td>
                 <td><div class="img-row">${imagesHtml}</div></td>
               `;
+              const contactButton = document.createElement('button');
+              contactButton.type = 'button';
+              contactButton.className = 'mail-action';
+              contactButton.setAttribute('aria-label', `Write StarMail to ${item.contactEmail || 'listing owner'}`);
+              contactButton.innerHTML = `<span class="mail-icon">${mailIcon()}</span><span>StarMail</span>`;
+              contactButton.addEventListener('click', () => openCompose(item));
+              row.querySelector('.contact-action').appendChild(contactButton);
               tbody.appendChild(row);
             });
           }
@@ -803,6 +1502,88 @@
 
     document.getElementById('searchID').addEventListener('keydown', function (e) {
       if (e.key === 'Enter') searchText();
+    });
+
+    document.querySelectorAll('.mail-folder').forEach(button => {
+      button.addEventListener('click', () => {
+        activeMailFolder = button.dataset.folder;
+        renderStarMail();
+      });
+    });
+
+    document.getElementById('saveMailbox').addEventListener('click', () => {
+      const input = document.getElementById('mailboxEmail');
+      const email = input.value.trim().toLowerCase();
+      if (!email) {
+        input.focus();
+        return;
+      }
+      localStorage.setItem(STARMAIL_MAILBOX_KEY, email);
+      renderStarMail();
+    });
+
+    document.getElementById('markMailSeen').addEventListener('click', markMailAsSeen);
+    document.getElementById('enableMailNotifications').addEventListener('click', async () => {
+      if (!('Notification' in window)) return;
+      await Notification.requestPermission();
+      updateNotificationPermission();
+      if (Notification.permission === 'granted') {
+        const unread = unreadMessages(readStarMail(), mailboxAddress());
+        if (unread.length) announceNewMail(unread);
+      }
+    });
+
+    document.getElementById('openIncomingMail').addEventListener('click', () => {
+      activeMailFolder = 'inbox';
+      showSection('starmail', false);
+      document.getElementById('mailIncomingToast').hidden = true;
+    });
+
+    window.addEventListener('storage', event => {
+      if (event.key === STARMAIL_MESSAGES_KEY) {
+        renderStarMail({ announce: true });
+      }
+      if (event.key === STARMAIL_MAILBOX_KEY) {
+        renderStarMail();
+      }
+    });
+
+    document.getElementById('mailForm').addEventListener('submit', function (event) {
+      event.preventDefault();
+      const formData = new FormData(this);
+      const from = String(formData.get('from') || '').trim().toLowerCase();
+      const to = String(formData.get('to') || '').trim().toLowerCase();
+      const subject = String(formData.get('subject') || '').trim();
+      const body = String(formData.get('body') || '').trim();
+      if (!from || !to || !subject || !body) return;
+
+      const messages = readStarMail();
+      messages.push({
+        id: window.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`,
+        from,
+        to,
+        subject,
+        body,
+        listingAddress: composeListing?.address || '',
+        sentAt: new Date().toISOString()
+      });
+      writeStarMail(messages);
+      localStorage.setItem(STARMAIL_MAILBOX_KEY, from);
+      closeCompose();
+      activeMailFolder = 'sent';
+      showSection('starmail', false);
+      showMailDeliveryStatus('Sending the email notification…', 'success');
+      sendEmailNotification(message)
+        .then(() => showMailDeliveryStatus('Email notification sent to the registered address.', 'success'))
+        .catch(() => showMailDeliveryStatus('Saved to StarMail, but email delivery failed. The local message is still available in Sent.', 'failure'));
+    });
+
+    document.getElementById('cancelMail').addEventListener('click', closeCompose);
+    document.getElementById('mailComposer').addEventListener('click', event => {
+      if (event.target === event.currentTarget) closeCompose();
+    });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && !document.getElementById('mailComposer').hidden) closeCompose();
     });
 
     let managementParams = null;
