@@ -1,0 +1,1 @@
+- [GitHub connector push quirks](github-connector-push-quirks.md) — direct ref, workflow, and large HTML writes may be blocked; prefer a properly permissioned Git push.
