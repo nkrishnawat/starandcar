@@ -1,1 +1,36 @@
-cGFja2FnZSBjb20ucmVzaWxpZW50ZWNobm9sb2d5LnN0YXJhbmRjYXIuc2VydmljZS5ub3RpZmljYXRpb247CgppbXBvcnQgb3JnLnNwcmluZ2ZyYW1ld29yay5iZWFucy5mYWN0b3J5LmFubm90YXRpb24uVmFsdWU7CmltcG9ydCBvcmcuc3ByaW5nZnJhbWV3b3JrLm1haWwuU2ltcGxlTWFpbE1lc3NhZ2U7CmltcG9ydCBvcmcuc3ByaW5nZnJhbWV3b3JrLm1haWwuamF2YW1haWwuSmF2YU1haWxTZW5kZXI7CmltcG9ydCBvcmcuc3ByaW5nZnJhbWV3b3JrLnN0ZXJlb3R5cGUuU2VydmljZTsKaW1wb3J0IG9yZy5zcHJpbmdmcmFtZXdvcmsudXRpbC5TdHJpbmdVdGlsczsKCkBTZXJ2aWNlCnB1YmxpYyBjbGFzcyBFbWFpbE5vdGlmaWNhdGlvblNlcnZpY2UgewogICAgcHJpdmF0ZSBmaW5hbCBKYXZhTWFpbFNlbmRlciBtYWlsU2VuZGVyOwogICAgcHJpdmF0ZSBmaW5hbCBTdHJpbmcgZnJvbUFkZHJlc3M7CgogICAgcHVibGljIEVtYWlsTm90aWZpY2F0aW9uU2VydmljZSgKICAgICAgICAgICAgSmF2YU1haWxTZW5kZXIgbWFpbFNlbmRlciwKICAgICAgICAgICAgQFZhbHVlKCIke3N0YXJhbmRjYXIubWFpbC5mcm9tOn0iKSBTdHJpbmcgZnJvbUFkZHJlc3MpIHsKICAgICAgICB0aGlzLm1haWxTZW5kZXIgPSBtYWlsU2VuZGVyOwogICAgICAgIHRoaXMuZnJvbUFkZHJlc3MgPSBmcm9tQWRkcmVzczsKICAgIH0KCiAgICBwdWJsaWMgdm9pZCBzZW5kKFN0cmluZyByZWNpcGllbnQsIFN0cmluZyBzdWJqZWN0LCBTdHJpbmcgYm9keSwgU3RyaW5nIHJlcGx5VG8pIHsKICAgICAgICBpZiAoIVN0cmluZ1V0aWxzLmhhc1RleHQoZnJvbUFkZHJlc3MpKSB7CiAgICAgICAgICAgIHRocm93IG5ldyBJbGxlZ2FsU3RhdGVFeGNlcHRpb24oIk1BSUxfRlJPTSBvciBNQUlMX1VTRVJOQU1FIG11c3QgYmUgY29uZmlndXJlZCIpOwogICAgICAgIH0KCiAgICAgICAgU2ltcGxlTWFpbE1lc3NhZ2UgbWVzc2FnZSA9IG5ldyBTaW1wbGVNYWlsTWVzc2FnZSgpOwogICAgICAgIG1lc3NhZ2Uuc2V0RnJvbShmcm9tQWRkcmVzcyk7CiAgICAgICAgbWVzc2FnZS5zZXRUbyhyZWNpcGllbnQpOwogICAgICAgIG1lc3NhZ2Uuc2V0U3ViamVjdChzdWJqZWN0KTsKICAgICAgICBtZXNzYWdlLnNldFRleHQoYm9keSArICJcblxuU2VudCBmcm9tIFN0YXJNYWlsIC0gU3RhcmFuZGNhci5jb20iKTsKICAgICAgICBpZiAoU3RyaW5nVXRpbHMuaGFzVGV4dChyZXBseVRvKSkgewogICAgICAgICAgICBtZXNzYWdlLnNldFJlcGx5VG8ocmVwbHlUbyk7CiAgICAgICAgfQogICAgICAgIG1haWxTZW5kZXIuc2VuZChtZXNzYWdlKTsKICAgIH0KfQ==
+package com.resilientechnology.starandcar.service.notification;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+@Service
+public class EmailNotificationService {
+    private final JavaMailSender mailSender;
+    private final String fromAddress;
+
+    public EmailNotificationService(
+            JavaMailSender mailSender,
+            @Value("${starandcar.mail.from:}") String fromAddress) {
+        this.mailSender = mailSender;
+        this.fromAddress = fromAddress;
+    }
+
+    public void send(String recipient, String subject, String body, String replyTo) {
+        if (!StringUtils.hasText(fromAddress)) {
+            throw new IllegalStateException("MAIL_FROM or MAIL_USERNAME must be configured");
+        }
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(fromAddress);
+        message.setTo(recipient);
+        message.setSubject(subject);
+        message.setText(body + "\n\nSent from StarMail - Starandcar.com");
+        if (StringUtils.hasText(replyTo)) {
+            message.setReplyTo(replyTo);
+        }
+        mailSender.send(message);
+    }
+}
