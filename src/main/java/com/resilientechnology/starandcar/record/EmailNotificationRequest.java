@@ -1,1 +1,13 @@
-cGFja2FnZSBjb20ucmVzaWxpZW50ZWNobm9sb2d5LnN0YXJhbmRjYXIucmVjb3JkOwoKaW1wb3J0IGpha2FydGEudmFsaWRhdGlvbi5jb25zdHJhaW50cy5FbWFpbDsKaW1wb3J0IGpha2FydGEudmFsaWRhdGlvbi5jb25zdHJhaW50cy5Ob3RCbGFuazsKaW1wb3J0IGpha2FydGEudmFsaWRhdGlvbi5jb25zdHJhaW50cy5TaXplOwoKcHVibGljIHJlY29yZCBFbWFpbE5vdGlmaWNhdGlvblJlcXVlc3QoCiAgICAgICAgQE5vdEJsYW5rIEBFbWFpbCBTdHJpbmcgcmVjaXBpZW50LAogICAgICAgIEBOb3RCbGFuayBAU2l6ZShtYXggPSAyMDApIFN0cmluZyBzdWJqZWN0LAogICAgICAgIEBOb3RCbGFuayBAU2l6ZShtYXggPSAxMDAwMCkgU3RyaW5nIGJvZHksCiAgICAgICAgQEVtYWlsIFN0cmluZyByZXBseVRvCikgewp9
+package com.resilientechnology.starandcar.record;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+public record EmailNotificationRequest(
+        @NotBlank @Email String recipient,
+        @NotBlank @Size(max = 200) String subject,
+        @NotBlank @Size(max = 10000) String body,
+        @Email String replyTo
+) {
+}
