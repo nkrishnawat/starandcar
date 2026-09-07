@@ -1,1 +1,38 @@
-cGFja2FnZSBjb20ucmVzaWxpZW50ZWNobm9sb2d5LnN0YXJhbmRjYXIuY29udHJvbGxlci5ub3RpZmljYXRpb247CgppbXBvcnQgY29tLnJlc2lsaWVudGVjaG5vbG9neS5zdGFyYW5kY2FyLnJlY29yZC5FbWFpbE5vdGlmaWNhdGlvblJlcXVlc3Q7CmltcG9ydCBjb20ucmVzaWxpZW50ZWNobm9sb2d5LnN0YXJhbmRjYXIuc2VydmljZS5ub3RpZmljYXRpb24uRW1haWxOb3RpZmljYXRpb25TZXJ2aWNlOwppbXBvcnQgamFrYXJ0YS52YWxpZGF0aW9uLlZhbGlkOwppbXBvcnQgb3JnLnNsZjRqLkxvZ2dlcjsKaW1wb3J0IG9yZy5zbGY0ai5Mb2dnZXJGYWN0b3J5OwppbXBvcnQgb3JnLnNwcmluZ2ZyYW1ld29yay5odHRwLkh0dHBTdGF0dXM7CmltcG9ydCBvcmcuc3ByaW5nZnJhbWV3b3JrLmh0dHAuUmVzcG9uc2VFbnRpdHk7CmltcG9ydCBvcmcuc3ByaW5nZnJhbWV3b3JrLm1haWwuTWFpbEV4Y2VwdGlvbjsKaW1wb3J0IG9yZy5zcHJpbmdmcmFtZXdvcmsud2ViLmJpbmQuYW5ub3RhdGlvbi4qOwoKQFJlc3RDb250cm9sbGVyCkBSZXF1ZXN0TWFwcGluZygibm90aWZpY2F0aW9ucyIpCnB1YmxpYyBjbGFzcyBFbWFpbE5vdGlmaWNhdGlvbkNvbnRyb2xsZXIgewogICAgcHJpdmF0ZSBzdGF0aWMgZmluYWwgTG9nZ2VyIGxvZ2dlciA9IExvZ2dlckZhY3RvcnkuZ2V0TG9nZ2VyKEVtYWlsTm90aWZpY2F0aW9uQ29udHJvbGxlci5jbGFzcyk7CgogICAgcHJpdmF0ZSBmaW5hbCBFbWFpbE5vdGlmaWNhdGlvblNlcnZpY2UgZW1haWxOb3RpZmljYXRpb25TZXJ2aWNlOwoKICAgIHB1YmxpYyBFbWFpbE5vdGlmaWNhdGlvbkNvbnRyb2xsZXIoRW1haWxOb3RpZmljYXRpb25TZXJ2aWNlIGVtYWlsTm90aWZpY2F0aW9uU2VydmljZSkgewogICAgICAgIHRoaXMuZW1haWxOb3RpZmljYXRpb25TZXJ2aWNlID0gZW1haWxOb3RpZmljYXRpb25TZXJ2aWNlOwogICAgfQoKICAgIEBQb3N0TWFwcGluZygiZW1haWwiKQogICAgcHVibGljIFJlc3BvbnNlRW50aXR5PFZvaWQ+IHNlbmRFbWFpbChAVmFsaWQgQFJlcXVlc3RCb2R5IEVtYWlsTm90aWZpY2F0aW9uUmVxdWVzdCByZXF1ZXN0KSB7CiAgICAgICAgdHJ5IHsKICAgICAgICAgICAgZW1haWxOb3RpZmljYXRpb25TZXJ2aWNlLnNlbmQoCiAgICAgICAgICAgICAgICAgICAgcmVxdWVzdC5yZWNpcGllbnQoKSwKICAgICAgICAgICAgICAgICAgICByZXF1ZXN0LnN1YmplY3QoKSwKICAgICAgICAgICAgICAgICAgICByZXF1ZXN0LmJvZHkoKSwKICAgICAgICAgICAgICAgICAgICByZXF1ZXN0LnJlcGx5VG8oKSk7CiAgICAgICAgICAgIHJldHVybiBSZXNwb25zZUVudGl0eS5hY2NlcHRlZCgpLmJ1aWxkKCk7CiAgICAgICAgfSBjYXRjaCAoTWFpbEV4Y2VwdGlvbiB8IElsbGVnYWxTdGF0ZUV4Y2VwdGlvbiBleGNlcHRpb24pIHsKICAgICAgICAgICAgbG9nZ2VyLndhcm4oIlN0YXJNYWlsIGVtYWlsIGRlbGl2ZXJ5IGZhaWxlZDoge30iLCBleGNlcHRpb24uZ2V0TWVzc2FnZSgpKTsKICAgICAgICAgICAgcmV0dXJuIFJlc3BvbnNlRW50aXR5LnN0YXR1cyhIdHRwU3RhdHVzLlNFUlZJQ0VfVU5BVkFJTEFCTEUpLmJ1aWxkKCk7CiAgICAgICAgfQogICAgfQp9
+package com.resilientechnology.starandcar.controller.notification;
+
+import com.resilientechnology.starandcar.record.EmailNotificationRequest;
+import com.resilientechnology.starandcar.service.notification.EmailNotificationService;
+import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("notifications")
+public class EmailNotificationController {
+    private static final Logger logger = LoggerFactory.getLogger(EmailNotificationController.class);
+
+    private final EmailNotificationService emailNotificationService;
+
+    public EmailNotificationController(EmailNotificationService emailNotificationService) {
+        this.emailNotificationService = emailNotificationService;
+    }
+
+    @PostMapping("email")
+    public ResponseEntity<Void> sendEmail(@Valid @RequestBody EmailNotificationRequest request) {
+        try {
+            emailNotificationService.send(
+                    request.recipient(),
+                    request.subject(),
+                    request.body(),
+                    request.replyTo());
+            return ResponseEntity.accepted().build();
+        } catch (MailException | IllegalStateException exception) {
+            logger.warn("StarMail email delivery failed: {}", exception.getMessage());
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
+        }
+    }
+}
