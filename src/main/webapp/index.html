@@ -669,7 +669,7 @@
                 </div>
                 <div class="form-row">
                     <label>Notes for guests and buyers</label>
-                    <textarea name="notes" placeholder="Lease period, M/F per room, Shared kitchen, lat-bath and parking OR Vehicle's condition, sale/rent price…"></textarea>
+                    <textarea name="notes" placeholder="Lease period, M/F per room, Shared kitchen, # of WashRoom and parking OR Vehicle's condition, sale/rent price…"></textarea>
                 </div>
                 <div class="form-row">
                     <label>Available count #</label>
@@ -780,7 +780,7 @@
               const row = document.createElement('tr');
               const len = item.address.split(",").length;
               row.innerHTML = `
-                <td>
+                <td style="padding-left:2px">
                   <div class="contact-email">${item.contactEmail}</div>
                   <div class="contact-phone">${item.contactPhoneNo}</div>
                   <div class="addr-main">${item.address.split(",").splice(0, len-1).concat().toString()}</div>

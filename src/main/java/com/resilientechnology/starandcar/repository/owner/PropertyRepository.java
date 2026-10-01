@@ -121,7 +121,7 @@ public class PropertyRepository {
                 WHERE property_id = ?
                 """,
                 details.getAddress(), details.getDescription(), details.getNotes(),
-                details.getEmail(), details.getPhoneno(), propertyId);
+                details.getEmail(), details.getPhone(), propertyId);
     }
 
     public void delete(Long propertyId) {

@@ -1,16 +1,17 @@
 package com.resilientechnology.starandcar.service.owner;
 
-import com.resilientechnology.starandcar.record.PropertyDetailVO;
 import com.resilientechnology.starandcar.entity.Property;
 import com.resilientechnology.starandcar.entity.Room;
+import com.resilientechnology.starandcar.event.PropertyCreatedEvent;
+import com.resilientechnology.starandcar.record.PropertyDetailVO;
 import com.resilientechnology.starandcar.repository.owner.PropertyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
@@ -23,11 +24,7 @@ import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.HashSet;
-import java.util.List;
-import java.util.HexFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -49,7 +46,7 @@ public class PropertyService {
     }
 
     public List<Property> searchByText(String searchByText) {
-        return propertyRepository.searchByText(searchByText);
+        return propertyRepository.searchByText(Optional.of(searchByText.trim()).orElse(""));
     }
 
     public Property getPropertyById(Long propertyID) {
