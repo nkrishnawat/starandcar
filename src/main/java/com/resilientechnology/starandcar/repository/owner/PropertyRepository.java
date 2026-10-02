@@ -26,6 +26,18 @@ public class PropertyRepository {
         jdbcTemplate.execute("ALTER TABLE PROPERTY ADD COLUMN IF NOT EXISTS manage_token_hash VARCHAR(64)");
     }
 
+    /**
+     * StarMail addressing key for the listing owner.
+     *
+     * <p>StarMail routes by MAC address / DeviceID / MachineID rather than by e-mail, so each
+     * listing needs a device id to be reachable on. The registered e-mail stays in
+     * {@code contact_email} and is only used server-side for the carbon-copy delivery.</p>
+     */
+    @PostConstruct
+    void ensureContactDeviceColumn() {
+        jdbcTemplate.execute("ALTER TABLE PROPERTY ADD COLUMN IF NOT EXISTS contact_device_id VARCHAR(128)");
+    }
+
     // Get property by ID
     public Property getPropertyById(Long propertyId) {
         String sql = "SELECT property_id, address, description, notes, contact_email, contact_phone_no, manage_token_hash FROM PROPERTY WHERE property_id = ?";
