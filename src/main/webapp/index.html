@@ -1092,6 +1092,9 @@
                         <input type="text" name="phoneno" placeholder="+91 XXXXX XXXXX">
                     </div>
                 </div>
+                <!-- STARMail routing key: filled from this browser's MAC/DeviceID/MachineID.
+                     Buyers reach the owner through STARMail instead of seeing an email address. -->
+                <input type="hidden" name="contactDeviceId" id="publishDeviceId">
                 <div class="form-row">
                     <label>Description</label>
                     <textarea name="description" placeholder="Describe the property, amenities, location OR Vehicle's Year/Make/Model…"></textarea>
@@ -1118,6 +1121,8 @@
             <div class="form-title">Manage listing</div>
             <p id="manageIntro" class="about-text" style="text-align:left">Update your listing details or remove it from STAR&Car.</p>
             <form id="manageForm">
+                <!-- Preserves the STARMail routing key across edits. -->
+                <input type="hidden" name="contactDeviceId" id="manageDeviceId">
                 <div class="form-row">
                     <label>Address</label>
                     <input type="text" name="address" placeholder="Full street address" required>
@@ -1154,8 +1159,16 @@
         <div class="mail-wrap">
             <div class="form-title">STARMail</div>
             <div class="mail-identity">
-                <label for="myEmail" class="mail-list-title" style="margin:0; border:none; padding:0">Your STARMail address</label>
-                <input type="text" id="myEmail" placeholder="you@example.com">
+                <label for="myDeviceId" class="mail-list-title" style="margin:0; border:none; padding:0">Your Device ID (MAC / Machine ID)</label>
+                <input type="text" id="myDeviceId" readonly aria-label="Your device id">
+                <div class="form-row" style="margin:10px 0 0">
+                    <label for="myLabel">Display name (optional)</label>
+                    <input type="text" id="myLabel" placeholder="Shown to people who STARMail you">
+                </div>
+                <div class="form-row" style="margin:10px 0 0">
+                    <label for="myRegisteredEmail">Registered email (private — copies go here)</label>
+                    <input type="email" id="myRegisteredEmail" placeholder="you@example.com">
+                </div>
                 <button class="secondary-btn" id="saveIdentity" type="button">Save &amp; go online</button>
                 <span id="mailStatus" class="manage-status"></span>
             </div>
@@ -1181,12 +1194,12 @@
             </div>
             <div class="mail-compose-meta" id="composeListing"></div>
             <div class="form-row">
-                <label>To</label>
-                <input type="text" id="composeTo" readonly>
+                <label for="composeTo">To device</label>
+                <input type="text" id="composeTo" readonly aria-label="Recipient device id">
             </div>
             <div class="form-row">
-                <label>From</label>
-                <input type="text" id="composeFrom" placeholder="you@example.com">
+                <label for="composeFrom">From device</label>
+                <input type="text" id="composeFrom" readonly aria-label="Your device id">
             </div>
             <div class="form-row">
                 <label>Subject</label>
@@ -1295,6 +1308,9 @@
       const form = document.getElementById('manageForm');
       form.elements.address.value = item.address || '';
       form.elements.email.value = item.contactEmail || '';
+      if (form.elements.contactDeviceId) {
+        form.elements.contactDeviceId.value = item.contactDeviceId || '';
+      }
       form.elements.phoneno.value = item.contactPhoneNo || '';
       form.elements.description.value = item.description || '';
       form.elements.notes.value = item.notes || '';
@@ -1411,8 +1427,63 @@
     /* ── STARMail ── */
     const MAIL_SENT_KEY = 'starmail.sent';
     const MAIL_RECEIVED_KEY = 'starmail.received';
-    const MAIL_IDENTITY_KEY = 'starmail.identity';
+    const MAIL_IDENTITY_KEY = 'starmail.identity';   // legacy key from pre-device builds
+    const MAIL_DEVICE_ID_KEY = 'starmail.deviceId';
+    const MAIL_DEVICE_LABEL_KEY = 'starmail.deviceLabel';
+    const MAIL_REGISTERED_EMAIL_KEY = 'starmail.registeredEmail';
     const MAIL_LIMIT = 200;
+
+    /* ── Device identity: MAC address / DeviceID / MachineID ──
+       A browser cannot read a real MAC address, so STARMail derives a stable machine id
+       from the platform fingerprint and pins it in localStorage. It is the only key used to
+       route a message to this browser - no e-mail address is ever used for routing. */
+    function hashSeed(seed, offsetBasis) {
+      let hash = offsetBasis;
+      for (let i = 0; i < seed.length; i++) {
+        hash ^= seed.charCodeAt(i);
+        hash = Math.imul(hash, 0x01000193) >>> 0;
+      }
+      return hash.toString(16).padStart(8, '0');
+    }
+
+    function buildMachineId() {
+      const seed = [
+        navigator.userAgent || '',
+        navigator.language || '',
+        String(screen.width || 0),
+        String(screen.height || 0),
+        String(screen.colorDepth || 0),
+        String(new Date().getTimezoneOffset()),
+        String(navigator.hardwareConcurrency || 0),
+        String(navigator.maxTouchPoints || 0),
+        navigator.platform || ''
+      ].join('|');
+
+      const a = hashSeed(seed, 0x811c9dc5);
+      const b = hashSeed(seed.split('').reverse().join(''), 0x811c9dc5);
+
+      // MAC-shaped, locally administered, unicast: 02:xx:xx:xx:xx:xx
+      return '02:' + a.slice(0, 2) + ':' + a.slice(2, 4) + ':' + a.slice(4, 6)
+        + ':' + b.slice(0, 2) + ':' + b.slice(2, 4);
+    }
+
+    function getDeviceId() {
+      let id = '';
+      try { id = (localStorage.getItem(MAIL_DEVICE_ID_KEY) || '').trim(); } catch (e) { /* private mode */ }
+      if (!id) {
+        id = buildMachineId();
+        try { localStorage.setItem(MAIL_DEVICE_ID_KEY, id); } catch (e) { /* private mode */ }
+      }
+      return id;
+    }
+
+    function getDeviceLabel() {
+      try { return (localStorage.getItem(MAIL_DEVICE_LABEL_KEY) || '').trim(); } catch (e) { return ''; }
+    }
+
+    function getRegisteredEmail() {
+      try { return (localStorage.getItem(MAIL_REGISTERED_EMAIL_KEY) || '').trim(); } catch (e) { return ''; }
+    }
 
     function loadMail(key) {
       try {
@@ -1439,15 +1510,18 @@
     }
 
     function mailCard(message) {
+      const copyStatus = message.emailCopyStatus
+        ? ' · Email copy ' + escapeHtml(message.emailCopyStatus)
+        : '';
       return `
         <div class="mail-msg">
           <div class="mail-msg-head">
             <span>${escapeHtml(message.sentAt || '')}</span>
-            <span>${message.delivery ? escapeHtml(message.delivery) + ' · ' : ''}${message.listingId ? 'Listing #' + escapeHtml(message.listingId) : ''}</span>
+            <span>${message.delivery ? escapeHtml(message.delivery) + ' · ' : ''}${message.listingId ? 'Listing #' + escapeHtml(message.listingId) : ''}${copyStatus}</span>
           </div>
           <div class="mail-msg-subject">${escapeHtml(message.subject)}</div>
           <div class="mail-msg-body">${escapeHtml(message.body)}</div>
-          <div class="mail-msg-route">From ${escapeHtml(message.from)} → To ${escapeHtml(message.to)}</div>
+          <div class="mail-msg-route">From device ${escapeHtml(message.fromDeviceId || '(unknown)')} → To device ${escapeHtml(message.toDeviceId || '(unknown)')}</div>
         </div>`;
     }
 
@@ -1463,38 +1537,69 @@
     }
 
     let mailStream = null;
-    let mailIdentity = '';
+    let mailDeviceId = '';
+    let mailPollTimer = null;
 
-    function subscribeToMail(email) {
-      if (!email) return;
-      mailIdentity = email;
+    /* Store an incoming message in localStorage and tell the server it is safe. */
+    function ingestMessage(message) {
+      saveMail(MAIL_RECEIVED_KEY, message);
+      renderMailLists();
+      // confirm storage in localStorage so the server can clear the message body
+      if (message.messageId) {
+        fetch('mail/received?deviceId=' + encodeURIComponent(mailDeviceId) +
+          '&messageId=' + encodeURIComponent(message.messageId), { method: 'POST' })
+          .catch(function () { /* retried on the next poll */ });
+      }
+    }
+
+    /* Polling fallback - the guaranteed path into localStorage. */
+    function pollMail() {
+      if (!mailDeviceId) return;
+      fetch('mail/inbox?deviceId=' + encodeURIComponent(mailDeviceId))
+        .then(function (res) { return res.ok ? res.json() : []; })
+        .then(function (messages) {
+          if (!Array.isArray(messages) || messages.length === 0) return;
+          messages.forEach(ingestMessage);
+          const status = document.getElementById('mailStatus');
+          if (status) status.textContent = messages.length + ' new STARMail stored in this browser.';
+        })
+        .catch(function () { /* offline - the next poll catches up */ });
+    }
+
+    function subscribeToMail(deviceId) {
+      if (!deviceId) return;
+      mailDeviceId = deviceId;
+
       if (mailStream) {
         mailStream.close();
         mailStream = null;
       }
-      mailStream = new EventSource('mail/stream?email=' + encodeURIComponent(email));
-      mailStream.addEventListener('starmail', function (event) {
-        try {
-          const message = JSON.parse(event.data);
-          saveMail(MAIL_RECEIVED_KEY, message);
-          renderMailLists();
-          // confirm storage in localStorage so the server can prune its spool file
-          if (message.messageId) {
-            fetch('mail/received?email=' + encodeURIComponent(mailIdentity) +
-              '&messageId=' + encodeURIComponent(message.messageId), { method: 'POST' });
+      try {
+        mailStream = new EventSource('mail/stream?deviceId=' + encodeURIComponent(deviceId));
+        mailStream.addEventListener('starmail', function (event) {
+          try {
+            ingestMessage(JSON.parse(event.data));
+            const status = document.getElementById('mailStatus');
+            if (status) status.textContent = 'New STARMail received — stored in this browser.';
+          } catch (e) {
+            console.error('Unable to store incoming STARMail', e);
           }
-          const status = document.getElementById('mailStatus');
-          if (status) status.textContent = 'New STARMail received — stored in this browser.';
-        } catch (e) {
-          console.error('Unable to store incoming STARMail', e);
-        }
-      });
+        });
+      } catch (e) {
+        console.error('STARMail stream unavailable, relying on polling', e);
+      }
+
+      // Poll regardless of SSE: a message must reach localStorage even when the
+      // event stream is buffered, blocked or dropped by a proxy.
+      if (mailPollTimer) clearInterval(mailPollTimer);
+      pollMail();
+      mailPollTimer = setInterval(pollMail, 15000);
     }
 
     let composeListing = null;
 
     function defaultComposeBody(item) {
-      const identity = (localStorage.getItem(MAIL_IDENTITY_KEY) || '').trim();
+      const identity = getDeviceLabel() || getDeviceId();
       return 'Hi,\n\n' +
         'I saw your listing on STAR&Car and I am interested:\n\n' +
         '  Listing #' + item.propertyId + '\n' +
@@ -1507,13 +1612,16 @@
 
     function openCompose(item) {
       composeListing = item;
-      document.getElementById('composeTo').value = item.contactEmail || '';
-      document.getElementById('composeFrom').value = (localStorage.getItem(MAIL_IDENTITY_KEY) || '').trim();
+      document.getElementById('composeTo').value = item.contactDeviceId || '';
+      document.getElementById('composeFrom').value = getDeviceId();
       document.getElementById('composeSubject').value = 'STAR&Car enquiry — ' + item.address;
       document.getElementById('composeBody').value = defaultComposeBody(item);
       document.getElementById('composeListing').textContent =
         'Listing #' + item.propertyId + ' · ' + item.address;
-      document.getElementById('composeStatus').textContent = '';
+      const statusEl = document.getElementById('composeStatus');
+      statusEl.textContent = item.contactDeviceId
+        ? ''
+        : 'This listing has no device id yet, so there is nothing to route a STARMail to.';
       document.getElementById('composeBackdrop').classList.add('open');
     }
 
@@ -1528,14 +1636,15 @@
       const body = document.getElementById('composeBody').value;
       const statusEl = document.getElementById('composeStatus');
       if (!from || !to || !subject || !body.trim()) {
-        statusEl.textContent = 'From, To, subject and message are all required.';
+        statusEl.textContent = 'A recipient device, subject and message are all required.';
         return;
       }
       const message = {
         listingId: composeListing ? composeListing.propertyId : null,
         listingAddress: composeListing ? composeListing.address : '',
-        from: from,
-        to: to,
+        fromDeviceId: from,
+        toDeviceId: to,
+        fromLabel: getDeviceLabel(),
         subject: subject,
         body: body,
         sentAt: new Date().toISOString()
@@ -1552,17 +1661,53 @@
         .then(result => {
           message.messageId = result.messageId || message.messageId;
           message.delivery = result.delivered ? 'delivered' : 'queued';
+          message.emailCopyStatus = result.emailCopyStatus;
           saveMail(MAIL_SENT_KEY, message);
-          localStorage.setItem(MAIL_IDENTITY_KEY, from);
-          subscribeToMail(from);
           renderMailLists();
-          statusEl.textContent = result.delivered
-            ? 'Sent — pushed to the receiver\'s browser and stored in its localStorage.'
-            : 'Sent — queued in the compressed spool file. It reaches the receiver\'s browser as soon as it comes online. Nothing is dropped.';
+          const base = result.status || 'Sent.';
+          statusEl.textContent = base;
+          // the registered-email copy is dispatched independently on the server;
+          // poll briefly so its real outcome is visible instead of silent
+          if (result.messageId) trackEmailCopy(result.messageId, statusEl, base);
         })
         .catch(err => {
           statusEl.textContent = err.message;
         });
+    }
+
+    /* The carbon copy runs on its own thread server-side. Poll until it settles so a
+       failure is reported to the sender rather than vanishing in a log file. */
+    function trackEmailCopy(messageId, statusEl, baseText) {
+      let attempts = 0;
+      const timer = setInterval(function () {
+        attempts++;
+        fetch('mail/status?messageId=' + encodeURIComponent(messageId))
+          .then(function (res) { return res.ok ? res.json() : null; })
+          .then(function (info) {
+            if (!info) return;
+            const state = info.emailCopyStatus;
+            const settled = !!state && state !== 'PENDING' && state !== 'QUEUED';
+            if (settled || attempts >= 10) {
+              clearInterval(timer);
+              updateSentCopyStatus(messageId, state || 'PENDING', info.emailCopyDetail);
+              const detail = info.emailCopyDetail ? ' — ' + info.emailCopyDetail : '';
+              statusEl.textContent = baseText + (settled
+                ? ' Email copy: ' + state + detail + '.'
+                : ' Email copy is still ' + (state || 'pending') + '.');
+            }
+          })
+          .catch(function () { if (attempts >= 10) clearInterval(timer); });
+      }, 1500);
+    }
+
+    function updateSentCopyStatus(messageId, state, detail) {
+      const sent = loadMail(MAIL_SENT_KEY).map(function (m) {
+        return (m.messageId === messageId)
+          ? Object.assign({}, m, { emailCopyStatus: state, emailCopyDetail: detail })
+          : m;
+      });
+      try { localStorage.setItem(MAIL_SENT_KEY, JSON.stringify(sent)); } catch (e) { /* private mode */ }
+      renderMailLists();
     }
 
     /* ── Dark mode ── */
@@ -1586,22 +1731,48 @@
     applyTheme((localStorage.getItem('theme') || 'light'));
 
     (function initStarMail() {
-      const identity = (localStorage.getItem(MAIL_IDENTITY_KEY) || '').trim();
-      document.getElementById('myEmail').value = identity;
+      const deviceId = getDeviceId();
+      const deviceField = document.getElementById('myDeviceId');
+      if (deviceField) deviceField.value = deviceId;
+      const publishDeviceField = document.getElementById('publishDeviceId');
+      if (publishDeviceField) publishDeviceField.value = deviceId;
+      const labelField = document.getElementById('myLabel');
+      if (labelField) labelField.value = getDeviceLabel();
+      const emailField = document.getElementById('myRegisteredEmail');
+      if (emailField) emailField.value = getRegisteredEmail();
       renderMailLists();
-      if (identity) subscribeToMail(identity);
+      subscribeToMail(deviceId);
     })();
 
     document.getElementById('saveIdentity').addEventListener('click', function () {
-      const email = document.getElementById('myEmail').value.trim();
       const status = document.getElementById('mailStatus');
-      if (!email) {
-        status.textContent = 'Enter your email address first.';
-        return;
-      }
-      localStorage.setItem(MAIL_IDENTITY_KEY, email);
-      subscribeToMail(email);
-      status.textContent = 'You are online as ' + email + '. Incoming STARMail is stored in this browser.';
+      const deviceId = getDeviceId();
+      const label = document.getElementById('myLabel').value.trim();
+      const registeredEmail = document.getElementById('myRegisteredEmail').value.trim();
+
+      try {
+        localStorage.setItem(MAIL_DEVICE_LABEL_KEY, label);
+        localStorage.setItem(MAIL_REGISTERED_EMAIL_KEY, registeredEmail);
+      } catch (e) { /* private mode */ }
+
+      // Register the device in MariaDB so the independent copy can reach the registered
+      // email address. The address is kept server-side and never echoed back.
+      fetch('mail/device/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ deviceId: deviceId, deviceLabel: label, registeredEmail: registeredEmail })
+      })
+        .then(function (res) {
+          if (!res.ok) throw new Error('Unable to register this device.');
+          subscribeToMail(deviceId);
+          status.textContent = 'Online as ' + deviceId + '. Incoming STARMail is stored in this browser.'
+            + (registeredEmail
+              ? ' Copies go to your registered email.'
+              : ' No registered email — copies will be skipped.');
+        })
+        .catch(function (err) {
+          status.textContent = err.message;
+        });
     });
 
     document.getElementById('composeSend').addEventListener('click', sendCompose);

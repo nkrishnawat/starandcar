@@ -25,6 +25,8 @@ import java.util.Optional;
 public class StarMailRepository {
 
     public static final String STATUS_DELIVERED = "DELIVERED";
+    /** The recipient's browser confirmed storage in its localStorage. */
+    public static final String STATUS_CONFIRMED = "CONFIRMED";
     public static final String STATUS_PENDING = "PENDING";
     public static final String STATUS_SENT = "SENT";
     public static final String STATUS_FAILED = "FAILED";
@@ -53,6 +55,8 @@ public class StarMailRepository {
                         " message_id BIGINT AUTO_INCREMENT PRIMARY KEY," +
                         " sender_device_id VARCHAR(128) NOT NULL," +
                         " recipient_device_id VARCHAR(128) NOT NULL," +
+                        " listing_id BIGINT," +
+                        " listing_address VARCHAR(500)," +
                         " subject VARCHAR(200)," +
                         " body VARCHAR(10000)," +
                         " sent_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
@@ -62,6 +66,10 @@ public class StarMailRepository {
                         " INDEX idx_starmail_recipient (recipient_device_id, message_id)," +
                         " INDEX idx_starmail_sender (sender_device_id, message_id)" +
                         ")");
+
+        // Tolerate a STARMAIL_MESSAGE table created by an earlier build of this feature.
+        jdbcTemplate.execute("ALTER TABLE STARMAIL_MESSAGE ADD COLUMN IF NOT EXISTS listing_id BIGINT");
+        jdbcTemplate.execute("ALTER TABLE STARMAIL_MESSAGE ADD COLUMN IF NOT EXISTS listing_address VARCHAR(500)");
     }
 
     // ---------------------------------------------------------------- devices
@@ -132,12 +140,16 @@ public class StarMailRepository {
      * Persist a message for browser pickup by the recipient device id.
      * This is the primary delivery leg and returns the generated message id.
      */
-    public Long insertMessage(String senderDeviceId, String recipientDeviceId, String subject, String body) {
+    public Long insertMessage(String senderDeviceId, String recipientDeviceId,
+                              Long listingId, String listingAddress,
+                              String subject, String body) {
         jdbcTemplate.update(
                 "INSERT INTO STARMAIL_MESSAGE " +
-                        "(sender_device_id, recipient_device_id, subject, body, sent_date, local_delivery_status, email_copy_status) " +
-                        "VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?)",
-                senderDeviceId, recipientDeviceId, subject, body, STATUS_DELIVERED, STATUS_PENDING);
+                        "(sender_device_id, recipient_device_id, listing_id, listing_address, subject, body, " +
+                        " sent_date, local_delivery_status, email_copy_status) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?)",
+                senderDeviceId, recipientDeviceId, listingId, listingAddress, subject, body,
+                STATUS_DELIVERED, STATUS_PENDING);
 
         return jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Long.class);
     }
@@ -146,10 +158,36 @@ public class StarMailRepository {
      * Messages addressed to a device, newest last. {@code sinceMessageId} makes polling cheap
      * and idempotent - the browser only ever receives messages it has not seen.
      */
+    public List<StarMailMessage> pendingInbox(String deviceId) {
+        return jdbcTemplate.query(
+                "SELECT " + MESSAGE_COLUMNS +
+                        "FROM STARMAIL_MESSAGE WHERE recipient_device_id = ? AND local_delivery_status <> ? " +
+                        "ORDER BY message_id ASC",
+                ps -> {
+                    ps.setString(1, deviceId);
+                    ps.setString(2, STATUS_CONFIRMED);
+                },
+                new StarMailMessageRowMapper());
+    }
+
+    /**
+     * The recipient's browser confirmed the message is in its localStorage, so the body is
+     * cleared server-side. Routing metadata is kept so the sender's delivery status stays
+     * accurate.
+     */
+    public void markPickedUp(Long messageId) {
+        jdbcTemplate.update(
+                "UPDATE STARMAIL_MESSAGE SET local_delivery_status = ?, body = '' WHERE message_id = ?",
+                STATUS_CONFIRMED, messageId);
+    }
+
+    private static final String MESSAGE_COLUMNS =
+            "message_id, sender_device_id, recipient_device_id, listing_id, listing_address, subject, body, " +
+                    "sent_date, local_delivery_status, email_copy_status, email_copy_detail ";
+
     public List<StarMailMessage> inbox(String deviceId, long sinceMessageId) {
         return jdbcTemplate.query(
-                "SELECT message_id, sender_device_id, recipient_device_id, subject, body, sent_date, " +
-                        "local_delivery_status, email_copy_status, email_copy_detail " +
+                "SELECT " + MESSAGE_COLUMNS +
                         "FROM STARMAIL_MESSAGE WHERE recipient_device_id = ? AND message_id > ? " +
                         "ORDER BY message_id ASC",
                 ps -> {
@@ -161,8 +199,7 @@ public class StarMailRepository {
 
     public List<StarMailMessage> outbox(String deviceId, long sinceMessageId) {
         return jdbcTemplate.query(
-                "SELECT message_id, sender_device_id, recipient_device_id, subject, body, sent_date, " +
-                        "local_delivery_status, email_copy_status, email_copy_detail " +
+                "SELECT " + MESSAGE_COLUMNS +
                         "FROM STARMAIL_MESSAGE WHERE sender_device_id = ? AND message_id > ? " +
                         "ORDER BY message_id ASC",
                 ps -> {
@@ -174,9 +211,7 @@ public class StarMailRepository {
 
     public Optional<StarMailMessage> findMessage(Long messageId) {
         List<StarMailMessage> messages = jdbcTemplate.query(
-                "SELECT message_id, sender_device_id, recipient_device_id, subject, body, sent_date, " +
-                        "local_delivery_status, email_copy_status, email_copy_detail " +
-                        "FROM STARMAIL_MESSAGE WHERE message_id = ?",
+                "SELECT " + MESSAGE_COLUMNS + "FROM STARMAIL_MESSAGE WHERE message_id = ?",
                 ps -> ps.setLong(1, messageId),
                 new StarMailMessageRowMapper());
         return messages.stream().findFirst();
@@ -187,6 +222,18 @@ public class StarMailRepository {
         jdbcTemplate.update(
                 "UPDATE STARMAIL_MESSAGE SET email_copy_status = ?, email_copy_detail = ? WHERE message_id = ?",
                 status, truncate(detail, 1000), messageId);
+    }
+
+    /**
+     * Same as {@link #updateEmailCopyStatus} but never throws - for use inside error handlers,
+     * where a secondary DB failure must not mask the original problem.
+     */
+    public void updateEmailCopyStatusQuietly(Long messageId, String status, String detail) {
+        try {
+            updateEmailCopyStatus(messageId, status, detail);
+        } catch (Exception ignored) {
+            // already logging the primary failure elsewhere
+        }
     }
 
     private static String truncate(String value, int max) {

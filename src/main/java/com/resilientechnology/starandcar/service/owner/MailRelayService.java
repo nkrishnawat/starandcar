@@ -1,214 +1,222 @@
 package com.resilientechnology.starandcar.service.owner;
 
+import com.resilientechnology.starandcar.entity.StarMailMessage;
 import com.resilientechnology.starandcar.record.MailMessageVO;
-import org.springframework.beans.factory.annotation.Value;
+import com.resilientechnology.starandcar.repository.notification.StarMailRepository;
+import com.resilientechnology.starandcar.service.notification.EmailCopyService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.json.JsonMapper;
 
-import java.io.BufferedInputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.AtomicMoveNotSupportedException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
- * STARMail relay - no message is ever dropped.
+ * STARMail relay - addressed by MAC address / DeviceID / MachineID.
  *
- * Every message is first appended to a compressed spool file under
- * {@code file.mail-spool-dir} (default /tmp/starmail): exactly one gzip file
- * per user, so a phone, a desktop or any other browser of the same user shares
- * one queue file. The message is then pushed to the receiver's browser if it is
- * online (Server-Sent Events). Only after the receiver's browser confirms that
- * the message now lives in its localStorage is the entry pruned from the spool
- * file - so nothing is lost while a receiver is away, and nothing is kept on
- * the server once the receiver has it.
+ * <p>Delivery is two independent legs:</p>
+ * <ol>
+ *   <li><strong>Browser leg (primary).</strong> The message is written to MariaDB first, so it
+ *       survives restarts, offline receivers and a wiped {@code /tmp}. It is then pushed over
+ *       Server-Sent Events when the recipient's browser is online. The browser stores it in
+ *       {@code localStorage} and acknowledges it. A polling endpoint is also exposed so a
+ *       message still arrives when SSE is unavailable (proxy buffering, blocked stream).</li>
+ *   <li><strong>Registered e-mail leg (independent).</strong> A copy is e-mailed to the
+ *       registered address held in MariaDB on a separate thread. It can fail without any
+ *       effect on the browser leg.</li>
+ * </ol>
+ *
+ * <p>Neither leg uses an e-mail address as its routing key; both endpoints are identified by
+ * device id only.</p>
  */
 @Service
 public class MailRelayService {
 
-    private static final JsonMapper MAPPER = JsonMapper.shared();
-    private static final TypeReference<List<MailMessageVO>> MESSAGE_LIST = new TypeReference<>() {
-    };
+    private static final Logger logger = LoggerFactory.getLogger(MailRelayService.class);
 
-    /** Live browser connections only - not a message store. */
-    private final Map<String, SseEmitter> connectedBrowsers = new ConcurrentHashMap<>();
+    private static final DateTimeFormatter SENT_AT =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-    private final Map<String, Object> spoolLocks = new ConcurrentHashMap<>();
+    /** Live browser connections per device. A device may hold several open tabs. */
+    private final Map<String, Set<SseEmitter>> connectedBrowsers = new ConcurrentHashMap<>();
 
-    @Value("${file.mail-spool-dir:/tmp/starmail}")
-    private String spoolDir;
+    private final StarMailRepository repository;
+    private final EmailCopyService emailCopyService;
 
-    public SseEmitter subscribe(String email) {
-        String address = normalize(email);
-        SseEmitter emitter = new SseEmitter(0L); // stay open until the browser leaves
-
-        synchronized (lockFor(address)) {
-            SseEmitter previous = connectedBrowsers.put(address, emitter);
-            if (previous != null) {
-                previous.complete();
-            }
-            // hand over everything queued while this browser was away
-            for (MailMessageVO pending : readSpool(address)) {
-                push(emitter, pending);
-            }
-        }
-
-        Runnable forget = () -> connectedBrowsers.remove(address, emitter);
-        emitter.onCompletion(forget);
-        emitter.onTimeout(forget);
-        emitter.onError(error -> forget.run());
-        return emitter;
+    public MailRelayService(StarMailRepository repository, EmailCopyService emailCopyService) {
+        this.repository = repository;
+        this.emailCopyService = emailCopyService;
     }
 
+    // ------------------------------------------------------------------ send
+
     /**
-     * Email endpoint: the message is spooled to disk first (never dropped),
-     * then pushed to the receiver's browser when it is online.
+     * Send a STARMail message.
+     *
+     * <p>The browser leg is completed first and is guaranteed. The registered e-mail copy is
+     * then dispatched in parallel and cannot affect this call's outcome.</p>
      */
     public SendResult send(MailMessageVO message) {
         if (message.getMessageId() == null || message.getMessageId().isBlank()) {
             message.setMessageId(UUID.randomUUID().toString());
         }
-        String address = normalize(message.getTo());
-
-        synchronized (lockFor(address)) {
-            appendToSpool(address, message); // survive anything that follows
-            SseEmitter receiver = connectedBrowsers.get(address);
-            if (receiver != null && push(receiver, message)) {
-                return new SendResult(message.getMessageId(), true,
-                        "Pushed to the receiver's browser and kept in the spool file until that browser confirms storage in its localStorage.");
-            }
-            return new SendResult(message.getMessageId(), false,
-                    "Queued in the spool file " + spoolFile(address).getFileName()
-                            + " - it will reach the receiver's browser as soon as it comes online. Nothing is dropped.");
+        if (message.getSentAt() == null || message.getSentAt().isBlank()) {
+            message.setSentAt(LocalDateTime.now().format(SENT_AT));
         }
+
+        // ---- Leg 1: browser delivery. Durable, so nothing can be lost from here on.
+        Long id = repository.insertMessage(
+                message.getFromDeviceId(),
+                message.getToDeviceId(),
+                message.getListingId(),
+                message.getListingAddress(),
+                message.getSubject(),
+                message.getBody());
+
+        StarMailMessage stored = repository.findMessage(id)
+                .orElseThrow(() -> new IllegalStateException("STARMail message " + id + " could not be read back"));
+
+        // Best-effort instant push; the poll endpoint is the guaranteed path.
+        boolean pushed = push(stored);
+
+        // ---- Leg 2: independent carbon copy. Fire and forget on its own thread.
+        emailCopyService.dispatchCopyAsync(stored);
+
+        String status = pushed
+                ? "Delivered to the recipient's browser and stored in its localStorage. "
+                + "A copy is being sent to the registered email address independently."
+                : "Stored for the recipient's browser (it will be fetched into localStorage). "
+                + "A copy is being sent to the registered email address independently.";
+
+        return new SendResult(
+                String.valueOf(id),
+                true,
+                repository.STATUS_PENDING,
+                status);
+    }
+
+    // ------------------------------------------------------------- subscription
+
+    /**
+     * Keeps the receiver's browser on the line so incoming mail can be pushed straight into
+     * its localStorage. Everything already waiting is flushed on connect.
+     */
+    public SseEmitter subscribe(String deviceId) {
+        String device = normalize(deviceId);
+        SseEmitter emitter = new SseEmitter(0L); // stay open until the browser leaves
+
+        connectedBrowsers.computeIfAbsent(device, key -> new CopyOnWriteArraySet<>()).add(emitter);
+
+        Runnable forget = () -> {
+            Set<SseEmitter> emitters = connectedBrowsers.get(device);
+            if (emitters != null) {
+                emitters.remove(emitter);
+                if (emitters.isEmpty()) {
+                    connectedBrowsers.remove(device, emitters);
+                }
+            }
+        };
+        emitter.onCompletion(forget);
+        emitter.onTimeout(forget);
+        emitter.onError(error -> forget.run());
+
+        // hand over everything queued while this browser was away
+        for (MailMessageVO pending : pendingFor(device)) {
+            if (!pushTo(emitter, pending)) {
+                break;
+            }
+        }
+        return emitter;
     }
 
     /**
-     * The receiver's browser confirms the message is now in its localStorage,
-     * so the spool entry can be pruned.
+     * Polling fallback. Returns every message addressed to this device that the browser has
+     * not acknowledged yet, so a browser without a working SSE stream still receives mail.
      */
-    public void received(String email, String messageId) {
+    public List<MailMessageVO> inbox(String deviceId) {
+        return pendingFor(normalize(deviceId));
+    }
+
+    /**
+     * The receiver's browser confirms the message now lives in its localStorage. The body is
+     * then cleared server-side so the copy does not linger on the server, while the routing
+     * metadata is kept for the sender's delivery status.
+     */
+    public void received(String deviceId, String messageId) {
         if (messageId == null || messageId.isBlank()) {
             return;
         }
-        String address = normalize(email);
-        synchronized (lockFor(address)) {
-            List<MailMessageVO> remaining = new ArrayList<>();
-            for (MailMessageVO message : readSpool(address)) {
-                if (!Objects.equals(message.getMessageId(), messageId)) {
-                    remaining.add(message);
-                }
-            }
-            writeSpool(address, remaining);
+        try {
+            repository.markPickedUp(Long.parseLong(messageId.trim()));
+        } catch (NumberFormatException e) {
+            logger.warn("Ignoring STARMail ack with non-numeric message id '{}'", messageId);
         }
     }
 
-    private boolean push(SseEmitter receiver, MailMessageVO message) {
+    /** Messages waiting for this device's browser, newest last. */
+    private List<MailMessageVO> pendingFor(String deviceId) {
+        List<MailMessageVO> result = new ArrayList<>();
+        for (StarMailMessage message : repository.pendingInbox(deviceId)) {
+            result.add(toVO(message));
+        }
+        return result;
+    }
+
+    private boolean push(StarMailMessage message) {
+        Set<SseEmitter> emitters = connectedBrowsers.get(normalize(message.getRecipientDeviceId()));
+        if (emitters == null || emitters.isEmpty()) {
+            return false;
+        }
+        MailMessageVO payload = toVO(message);
+        boolean delivered = false;
+        for (SseEmitter emitter : emitters) {
+            delivered |= pushTo(emitter, payload);
+        }
+        return delivered;
+    }
+
+    private boolean pushTo(SseEmitter emitter, MailMessageVO message) {
         try {
-            receiver.send(SseEmitter.event()
+            emitter.send(SseEmitter.event()
                     .name("starmail")
                     .data(message, MediaType.APPLICATION_JSON));
             return true;
         } catch (Exception e) {
-            connectedBrowsers.remove(normalize(message.getTo()), receiver);
+            emitter.complete();
             return false;
         }
     }
 
-    /* ── Compressed per-user spool file ── */
-
-    private void appendToSpool(String address, MailMessageVO message) {
-        List<MailMessageVO> messages = readSpool(address);
-        messages.add(message);
-        writeSpool(address, messages);
+    private MailMessageVO toVO(StarMailMessage message) {
+        return MailMessageVO.builder()
+                .messageId(String.valueOf(message.getMessageId()))
+                .listingId(message.getListingId())
+                .listingAddress(message.getListingAddress())
+                .fromDeviceId(message.getSenderDeviceId())
+                .toDeviceId(message.getRecipientDeviceId())
+                .subject(message.getSubject())
+                .body(message.getBody())
+                .sentAt(message.getSentDate() == null ? "" : message.getSentDate().format(SENT_AT))
+                .delivery(message.getLocalDeliveryStatus())
+                .emailCopyStatus(message.getEmailCopyStatus())
+                .emailCopyDetail(message.getEmailCopyDetail())
+                .build();
     }
 
-    private List<MailMessageVO> readSpool(String address) {
-        Path file = spoolFile(address);
-        if (!Files.exists(file)) {
-            return new ArrayList<>();
-        }
-        try (InputStream in = new GZIPInputStream(new BufferedInputStream(Files.newInputStream(file)))) {
-            List<MailMessageVO> messages = MAPPER.readValue(in, MESSAGE_LIST);
-            return messages == null ? new ArrayList<>() : new ArrayList<>(messages);
-        } catch (Exception e) {
-            // Never drop an unreadable queue: keep it on disk and start a fresh file.
-            try {
-                Files.move(file, Paths.get(file + ".corrupt-" + System.currentTimeMillis()),
-                        StandardCopyOption.REPLACE_EXISTING);
-            } catch (Exception ignored) {
-                // the raw file stays where it is
-            }
-            return new ArrayList<>();
-        }
+    private String normalize(String deviceId) {
+        return deviceId == null ? "" : deviceId.trim();
     }
 
-    private void writeSpool(String address, List<MailMessageVO> messages) {
-        Path file = spoolFile(address);
-        try {
-            if (messages.isEmpty()) {
-                Files.deleteIfExists(file);
-                return;
-            }
-            Files.createDirectories(file.getParent());
-            Path temp = Paths.get(file + ".tmp");
-            try (OutputStream out = new GZIPOutputStream(Files.newOutputStream(temp))) {
-                out.write(MAPPER.writeValueAsBytes(messages));
-            }
-            try {
-                Files.move(temp, file, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
-            } catch (AtomicMoveNotSupportedException e) {
-                Files.move(temp, file, StandardCopyOption.REPLACE_EXISTING);
-            }
-        } catch (Exception e) {
-            throw new IllegalStateException("Unable to queue the STARMail message in " + file
-                    + " - the message was rejected rather than silently dropped", e);
-        }
-    }
-
-    private Path spoolFile(String address) {
-        String safe = address.replaceAll("[^a-z0-9._-]", "_");
-        if (safe.length() > 40) {
-            safe = safe.substring(0, 40);
-        }
-        return Paths.get(spoolDir, "starmail-" + safe + "-" + sha256(address).substring(0, 10) + ".gz");
-    }
-
-    private Object lockFor(String address) {
-        return spoolLocks.computeIfAbsent(address, key -> new Object());
-    }
-
-    private String normalize(String email) {
-        return email == null ? "" : email.trim().toLowerCase();
-    }
-
-    private String sha256(String value) {
-        try {
-            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
-                    .digest(value.getBytes(StandardCharsets.UTF_8)));
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("Unable to name the STARMail spool file", e);
-        }
-    }
-
-    public record SendResult(String messageId, boolean delivered, String status) {
+    /** Outcome of the browser leg; the e-mail leg is tracked separately. */
+    public record SendResult(String messageId, boolean delivered, String emailCopyStatus, String status) {
     }
 }

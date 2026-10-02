@@ -29,6 +29,10 @@ public class StarMailMessage {
 
     String recipientDeviceId;
 
+    Long listingId;
+
+    String listingAddress;
+
     String subject;
 
     String body;
