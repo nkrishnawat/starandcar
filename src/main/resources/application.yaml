@@ -42,6 +42,9 @@ logging:
 file:
   upload-dir: /home/nkrishnawat/uploads
   template-dir: /home/nkrishnawat/template
+  # One compressed spool file per user; messages wait here until the
+  # receiver's browser confirms storage in its localStorage.
+  mail-spool-dir: /tmp/starmail
 management:
   endpoints:
     web:

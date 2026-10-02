@@ -81,7 +81,7 @@
           .nav-sep {
             display: none;
           }
-          #nav-contact {
+          #nav-starmail {
             display: none;
           }
           #nav-about {
@@ -247,19 +247,6 @@
         .addr-sub {
           font-family: 'Geist Mono', monospace;
           font-size: 8px;
-          color: #94a3b8;
-          margin-top: 2px;
-        }
-
-        .contact-email {
-          font-family: 'Geist', sans-serif;
-          font-size: 12px;
-          color: #4f46e5;
-        }
-
-        .contact-phone {
-          font-family: 'Geist Mono', monospace;
-          font-size: 9px;
           color: #94a3b8;
           margin-top: 2px;
         }
@@ -594,6 +581,447 @@
           border-color: #4f46e5;
           color: #4f46e5;
         }
+
+        /* ── STARMail: mail icon + compose box ── */
+        .mail-icon-btn {
+          width: 32px;
+          height: 32px;
+          border-radius: 8px;
+          border: 0.5px solid #c7d2fe;
+          background: #eef2ff;
+          color: #4f46e5;
+          font-size: 15px;
+          line-height: 1;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          transition: background 0.12s, color 0.12s, transform 0.12s;
+        }
+
+        .mail-icon-btn:hover {
+          background: #4f46e5;
+          color: #ffffff;
+          transform: translateY(-1px);
+        }
+
+        .mail-compose-backdrop {
+          position: fixed;
+          inset: 0;
+          background: rgba(15, 23, 42, 0.45);
+          display: none;
+          align-items: center;
+          justify-content: center;
+          padding: 16px;
+          z-index: 200;
+        }
+
+        .mail-compose-backdrop.open {
+          display: flex;
+        }
+
+        .mail-compose {
+          width: 100%;
+          max-width: 470px;
+          background: #ffffff;
+          border: 0.5px solid #e2e8f0;
+          border-radius: 12px;
+          padding: 18px;
+          box-shadow: 0 24px 70px rgba(15, 23, 42, 0.28);
+        }
+
+        .mail-compose-head {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 10px;
+        }
+
+        .mail-compose-title {
+          font-family: 'Newsreader', serif;
+          font-size: 17px;
+          font-weight: 700;
+          font-style: italic;
+          color: #1e293b;
+          letter-spacing: -0.3px;
+        }
+
+        .mail-compose-close {
+          border: none;
+          background: transparent;
+          font-size: 20px;
+          line-height: 1;
+          color: #94a3b8;
+          cursor: pointer;
+        }
+
+        .mail-compose-close:hover {
+          color: #334155;
+        }
+
+        .mail-compose-meta {
+          font-family: 'Geist Mono', monospace;
+          font-size: 9px;
+          text-transform: uppercase;
+          letter-spacing: 0.7px;
+          color: #94a3b8;
+          background: #f8fafc;
+          border: 0.5px solid #e8edf2;
+          border-radius: 6px;
+          padding: 6px 9px;
+          margin-bottom: 10px;
+          overflow-wrap: anywhere;
+        }
+
+        /* ── STARMail: inbox ── */
+        .mail-wrap {
+          max-width: 860px;
+        }
+
+        .mail-identity {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 18px;
+        }
+
+        .mail-identity input {
+          min-width: 0;
+          flex: 1;
+          max-width: 280px;
+          border: 0.5px solid #cbd5e1;
+          border-radius: 6px;
+          padding: 7px 10px;
+          font-family: 'Geist', sans-serif;
+          font-size: 13px;
+          color: #334155;
+          background: white;
+          outline: none;
+        }
+
+        .mail-identity input:focus {
+          border-color: #4f46e5;
+          box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.08);
+        }
+
+        .mail-lists {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 18px;
+        }
+
+        @media (max-width: 700px) {
+          .mail-lists {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        .mail-list-title {
+          font-family: 'Geist Mono', monospace;
+          font-size: 10px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.8px;
+          color: #64748b;
+          margin-bottom: 8px;
+          padding-bottom: 6px;
+          border-bottom: 0.5px solid #e2e8f0;
+        }
+
+        .mail-list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .mail-empty {
+          font-family: 'Geist', sans-serif;
+          font-size: 12px;
+          color: #94a3b8;
+          padding: 10px 2px;
+        }
+
+        .mail-msg {
+          border: 0.5px solid #e2e8f0;
+          border-radius: 8px;
+          padding: 9px 11px;
+          background: #f8fafc;
+        }
+
+        .mail-msg-head {
+          display: flex;
+          justify-content: space-between;
+          gap: 8px;
+          font-family: 'Geist Mono', monospace;
+          font-size: 9px;
+          color: #94a3b8;
+          text-transform: uppercase;
+          letter-spacing: 0.6px;
+        }
+
+        .mail-msg-subject {
+          font-family: 'Newsreader', serif;
+          font-size: 13px;
+          font-weight: 700;
+          color: #1e293b;
+          margin: 4px 0 3px;
+        }
+
+        .mail-msg-body {
+          font-family: 'Geist', sans-serif;
+          font-size: 11px;
+          color: #475569;
+          line-height: 1.55;
+          white-space: pre-wrap;
+          overflow-wrap: anywhere;
+        }
+
+        .mail-msg-route {
+          font-family: 'Geist Mono', monospace;
+          font-size: 9px;
+          color: #64748b;
+          margin-top: 5px;
+          overflow-wrap: anywhere;
+        }
+
+        /* ── Theme toggle ── */
+        .theme-toggle {
+          margin-left: 6px;
+          border: 0.5px solid #2d2d38;
+          background: #16161c;
+          color: #c4c4d4;
+          width: 30px;
+          height: 26px;
+          border-radius: 6px;
+          font-size: 13px;
+          line-height: 1;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          transition: background 0.12s, color 0.12s;
+        }
+
+        .theme-toggle:hover {
+          background: #4f46e5;
+          color: #ffffff;
+          border-color: #4f46e5;
+        }
+
+        /* ── Dark mode — background, buttons and texture follow MiMo Studio ── */
+        html[data-theme='dark'] body {
+          background-color: #18181b;
+          background-image:
+            radial-gradient(1100px 480px at 12% -12%, rgba(99, 102, 241, 0.16), transparent 62%),
+            radial-gradient(900px 430px at 92% -6%, rgba(168, 85, 247, 0.12), transparent 58%),
+            repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.015) 0 1px, transparent 1px 3px);
+        }
+
+        html[data-theme='dark'] .card {
+          background: #1c1c21;
+          border-color: rgba(255, 255, 255, 0.08);
+          box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+        }
+
+        html[data-theme='dark'] .search-bar,
+        html[data-theme='dark'] .theme-toggle {
+          background: #232329;
+          border-color: rgba(255, 255, 255, 0.10);
+        }
+
+        html[data-theme='dark'] .search-bar input {
+          color: rgba(255, 255, 255, 0.92);
+        }
+
+        html[data-theme='dark'] .search-bar input::placeholder {
+          color: rgba(255, 255, 255, 0.38);
+        }
+
+        html[data-theme='dark'] .search-bar button,
+        html[data-theme='dark'] .submit-btn {
+          background: linear-gradient(135deg, #4f46e5, #7c5cf6);
+          box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
+        }
+
+        html[data-theme='dark'] .search-bar button:hover,
+        html[data-theme='dark'] .submit-btn:hover {
+          background: linear-gradient(135deg, #5b52ea, #8b6cf8);
+        }
+
+        html[data-theme='dark'] .nav-links a {
+          color: rgba(255, 255, 255, 0.72);
+          background: rgba(255, 255, 255, 0.04);
+          border-color: rgba(255, 255, 255, 0.10);
+        }
+
+        html[data-theme='dark'] .nav-links a:hover,
+        html[data-theme='dark'] .nav-links a.active {
+          background: linear-gradient(135deg, #4f46e5, #7c5cf6);
+          color: #ffffff;
+          border-color: transparent;
+        }
+
+        html[data-theme='dark'] #results {
+          background: #1c1c21;
+        }
+
+        html[data-theme='dark'] #results thead {
+          background: #202027;
+        }
+
+        html[data-theme='dark'] #results thead th {
+          color: rgba(255, 255, 255, 0.55);
+          border-bottom-color: rgba(255, 255, 255, 0.08);
+        }
+
+        html[data-theme='dark'] #results tbody td {
+          background: #1c1c21;
+          border-bottom-color: rgba(255, 255, 255, 0.06);
+        }
+
+        html[data-theme='dark'] #results tbody tr:hover td {
+          background: #23232b;
+        }
+
+        html[data-theme='dark'] .addr-main,
+        html[data-theme='dark'] .mail-msg-subject,
+        html[data-theme='dark'] .mail-compose-title {
+          color: rgba(255, 255, 255, 0.92);
+        }
+
+        html[data-theme='dark'] .desc {
+          color: rgba(255, 255, 255, 0.72);
+        }
+
+        html[data-theme='dark'] .notes,
+        html[data-theme='dark'] .mail-msg-body {
+          color: rgba(255, 255, 255, 0.60);
+        }
+
+        html[data-theme='dark'] .room-badge {
+          background: rgba(99, 102, 241, 0.18);
+          color: #c7d2fe;
+        }
+
+        html[data-theme='dark'] .img-row img {
+          border-color: rgba(255, 255, 255, 0.10);
+        }
+
+        html[data-theme='dark'] .section {
+          background: transparent;
+        }
+
+        html[data-theme='dark'] .form-title,
+        html[data-theme='dark'] .info-title {
+          color: rgba(255, 255, 255, 0.92);
+          border-bottom-color: rgba(255, 255, 255, 0.08);
+        }
+
+        html[data-theme='dark'] .form-row label {
+          color: rgba(255, 255, 255, 0.55);
+        }
+
+        html[data-theme='dark'] .form-row input[type=text],
+        html[data-theme='dark'] .form-row textarea,
+        html[data-theme='dark'] .form-row input[type=number],
+        html[data-theme='dark'] .comment-box,
+        html[data-theme='dark'] .mail-identity input,
+        html[data-theme='dark'] .manage-link-row input {
+          background: #232329;
+          border-color: rgba(255, 255, 255, 0.10);
+          color: rgba(255, 255, 255, 0.92);
+        }
+
+        html[data-theme='dark'] .form-row input[type=text]::placeholder,
+        html[data-theme='dark'] .form-row textarea::placeholder,
+        html[data-theme='dark'] .comment-box::placeholder {
+          color: rgba(255, 255, 255, 0.38);
+        }
+
+        html[data-theme='dark'] .form-row input[type=text]:focus,
+        html[data-theme='dark'] .form-row textarea:focus,
+        html[data-theme='dark'] .comment-box:focus,
+        html[data-theme='dark'] .mail-identity input:focus {
+          border-color: #7c5cf6;
+          box-shadow: 0 0 0 3px rgba(124, 92, 246, 0.18);
+        }
+
+        html[data-theme='dark'] .about-text,
+        html[data-theme='dark'] .contact-item {
+          color: rgba(255, 255, 255, 0.72);
+        }
+
+        html[data-theme='dark'] .send-btn,
+        html[data-theme='dark'] .secondary-btn {
+          color: #c7d2fe;
+          background: rgba(255, 255, 255, 0.04);
+          border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        html[data-theme='dark'] .send-btn:hover,
+        html[data-theme='dark'] .secondary-btn:hover {
+          border-color: #7c5cf6;
+          color: #ffffff;
+          background: rgba(124, 92, 246, 0.16);
+        }
+
+        html[data-theme='dark'] .danger-btn {
+          background: rgba(220, 38, 38, 0.14);
+          border-color: rgba(248, 113, 113, 0.35);
+          color: #fca5a5;
+        }
+
+        html[data-theme='dark'] .manage-tools {
+          background: rgba(99, 102, 241, 0.12);
+          border-color: rgba(129, 140, 248, 0.35);
+        }
+
+        html[data-theme='dark'] .manage-tools-title {
+          color: #a5b4fc;
+        }
+
+        html[data-theme='dark'] .manage-tools p,
+        html[data-theme='dark'] .manage-status {
+          color: rgba(255, 255, 255, 0.60);
+        }
+
+        html[data-theme='dark'] .mail-compose {
+          background: #1c1c21;
+          border-color: rgba(255, 255, 255, 0.08);
+          box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+        }
+
+        html[data-theme='dark'] .mail-compose-meta,
+        html[data-theme='dark'] .mail-msg {
+          background: rgba(255, 255, 255, 0.04);
+          border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        html[data-theme='dark'] .mail-msg-head,
+        html[data-theme='dark'] .mail-msg-route,
+        html[data-theme='dark'] .mail-list-title {
+          color: rgba(255, 255, 255, 0.55);
+        }
+
+        html[data-theme='dark'] .mail-empty {
+          color: rgba(255, 255, 255, 0.38);
+        }
+
+        html[data-theme='dark'] .mail-compose-close {
+          color: rgba(255, 255, 255, 0.55);
+        }
+
+        html[data-theme='dark'] .mail-icon-btn {
+          background: rgba(99, 102, 241, 0.18);
+          border-color: rgba(129, 140, 248, 0.35);
+          color: #c7d2fe;
+        }
+
+        html[data-theme='dark'] .mail-icon-btn:hover {
+          background: linear-gradient(135deg, #4f46e5, #7c5cf6);
+          color: #ffffff;
+        }
     </style>
 </head>
 
@@ -612,9 +1040,10 @@
         <div class="nav-links">
             <a onclick="showSection('post4rent')" id="nav-publish">Publish</a>
             <span class="nav-sep">|</span>
-            <a onclick="showSection('contactus')" id="nav-contact">Contact</a>
+            <a onclick="showSection('starmail')" id="nav-starmail">STARMail</a>
             <span class="nav-sep">|</span>
             <a onclick="showSection('about')" id="nav-about">About</a>
+            <button id="themeToggle" class="theme-toggle" type="button" onclick="toggleTheme()" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
         </div>
     </nav>
 
@@ -622,7 +1051,7 @@
     <table id="results">
         <thead>
         <tr>
-            <th style="width:10%">Contact Address</th>
+            <th style="width:10%">Email</th>
             <th style="width:48%">Description</th>
             <th style="width:16%">Owner Notes</th>
             <th style="width:5%; text-align:center">Count</th>
@@ -720,21 +1149,69 @@
         </div>
     </div>
 
-    <!-- Contact Section -->
-    <div id="contactus" class="section">
-        <div class="info-section">
-            <div class="info-title">Get in touch</div>
-            <div class="contact-item">📞 +91 90010 21015</div>
-            <div class="contact-item">📧 logspate@gmail.com</div>
+    <!-- STARMail Section (formerly Contact) -->
+    <div id="starmail" class="section">
+        <div class="mail-wrap">
+            <div class="form-title">STARMail</div>
+            <div class="mail-identity">
+                <label for="myEmail" class="mail-list-title" style="margin:0; border:none; padding:0">Your STARMail address</label>
+                <input type="text" id="myEmail" placeholder="you@example.com">
+                <button class="secondary-btn" id="saveIdentity" type="button">Save &amp; go online</button>
+                <span id="mailStatus" class="manage-status"></span>
+            </div>
+            <div class="mail-lists">
+                <div>
+                    <div class="mail-list-title">Received</div>
+                    <div id="receivedList" class="mail-list"></div>
+                </div>
+                <div>
+                    <div class="mail-list-title">Sent</div>
+                    <div id="sentList" class="mail-list"></div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- About Section -->
+    <!-- Compose STARMail (opened from the email icon on a search result) -->
+    <div class="mail-compose-backdrop" id="composeBackdrop">
+        <div class="mail-compose" role="dialog" aria-modal="true" aria-label="Compose STARMail">
+            <div class="mail-compose-head">
+                <div class="mail-compose-title">✉️ New STARMail</div>
+                <button class="mail-compose-close" id="composeClose" type="button" aria-label="Close">×</button>
+            </div>
+            <div class="mail-compose-meta" id="composeListing"></div>
+            <div class="form-row">
+                <label>To</label>
+                <input type="text" id="composeTo" readonly>
+            </div>
+            <div class="form-row">
+                <label>From</label>
+                <input type="text" id="composeFrom" placeholder="you@example.com">
+            </div>
+            <div class="form-row">
+                <label>Subject</label>
+                <input type="text" id="composeSubject">
+            </div>
+            <div class="form-row">
+                <label>Message</label>
+                <textarea id="composeBody"></textarea>
+            </div>
+            <div class="manage-actions">
+                <button class="submit-btn" id="composeSend" type="button">Send</button>
+                <button class="secondary-btn" id="composeCancel" type="button">Cancel</button>
+                <span id="composeStatus" class="manage-status"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Section (includes the former Contact details) -->
     <div id="about" class="section">
         <div class="info-section">
             <form id="sendFeedbackForm">
                 <div class="info-title">About STAR&Car</div>
                 <p class="about-text">STAR&Car is a free platform to post and discover short-term accommodation rentals and cars. Whether you're a property owner, professional, student or a traveller, we make it easy.</p>
+                <div class="contact-item">📞 +91 90010 21015</div>
+                <div class="contact-item">📧 logspate@gmail.com</div>
                 <textarea class="comment-box" name="description" placeholder="Share your feedback or suggestions…"></textarea>
                 <br>
                 <button class="send-btn" id="sendFeedback">Send feedback</button>
@@ -750,7 +1227,7 @@
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
       document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
       document.getElementById(sectionId).classList.add('active');
-      const map = { post4rent: 'nav-publish', contactus: 'nav-contact', about: 'nav-about' };
+      const map = { post4rent: 'nav-publish', starmail: 'nav-starmail', about: 'nav-about' };
       if (map[sectionId]) document.getElementById(map[sectionId]).classList.add('active');
     }
 
@@ -778,19 +1255,17 @@
               .join('');
 
               const row = document.createElement('tr');
-              const len = item.address.split(",").length;
               row.innerHTML = `
-                <td style="padding-left:2px">
-                  <div class="contact-email">${item.contactEmail}</div>
-                  <div class="contact-phone">${item.contactPhoneNo}</div>
-                  <div class="addr-main">${item.address.split(",").splice(0, len-1).concat().toString()}</div>
-                  <div class="addr-sub">${item.address.split(',').slice(-1)[0].trim()}</div>
+                <td style="text-align:center; padding-top:6px">
+                  <button class="mail-icon-btn" type="button" title="Email the owner of this listing">✉</button>
                 </td>
                 <td><div class="desc">${item.description}</div></td>
                 <td><div class="notes">${item.notes}</div></td>
                 <td style="text-align:center"><span class="room-badge">${item.rooms.length}</span></td>
                 <td><div class="img-row">${imagesHtml}</div></td>
               `;
+              row.querySelector('.mail-icon-btn')
+                .addEventListener('click', () => openCompose(item));
               tbody.appendChild(row);
             });
           }
@@ -932,6 +1407,209 @@
         .then(() => alert('Feedback sent.'))
         .catch(e => console.log('Something went wrong.' + e))
       });
+
+    /* ── STARMail ── */
+    const MAIL_SENT_KEY = 'starmail.sent';
+    const MAIL_RECEIVED_KEY = 'starmail.received';
+    const MAIL_IDENTITY_KEY = 'starmail.identity';
+    const MAIL_LIMIT = 200;
+
+    function loadMail(key) {
+      try {
+        return JSON.parse(localStorage.getItem(key) || '[]');
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveMail(key, message) {
+      const messages = loadMail(key)
+        .filter(m => !message.messageId || m.messageId !== message.messageId);
+      messages.unshift(message);
+      localStorage.setItem(key, JSON.stringify(messages.slice(0, MAIL_LIMIT)));
+    }
+
+    function escapeHtml(value) {
+      return String(value == null ? '' : value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function mailCard(message) {
+      return `
+        <div class="mail-msg">
+          <div class="mail-msg-head">
+            <span>${escapeHtml(message.sentAt || '')}</span>
+            <span>${message.delivery ? escapeHtml(message.delivery) + ' · ' : ''}${message.listingId ? 'Listing #' + escapeHtml(message.listingId) : ''}</span>
+          </div>
+          <div class="mail-msg-subject">${escapeHtml(message.subject)}</div>
+          <div class="mail-msg-body">${escapeHtml(message.body)}</div>
+          <div class="mail-msg-route">From ${escapeHtml(message.from)} → To ${escapeHtml(message.to)}</div>
+        </div>`;
+    }
+
+    function renderMailLists() {
+      const sent = loadMail(MAIL_SENT_KEY);
+      const received = loadMail(MAIL_RECEIVED_KEY);
+      document.getElementById('sentList').innerHTML = sent.length
+        ? sent.map(mailCard).join('')
+        : '<div class="mail-empty">No sent messages yet.</div>';
+      document.getElementById('receivedList').innerHTML = received.length
+        ? received.map(mailCard).join('')
+        : '<div class="mail-empty">No received messages yet.</div>';
+    }
+
+    let mailStream = null;
+    let mailIdentity = '';
+
+    function subscribeToMail(email) {
+      if (!email) return;
+      mailIdentity = email;
+      if (mailStream) {
+        mailStream.close();
+        mailStream = null;
+      }
+      mailStream = new EventSource('mail/stream?email=' + encodeURIComponent(email));
+      mailStream.addEventListener('starmail', function (event) {
+        try {
+          const message = JSON.parse(event.data);
+          saveMail(MAIL_RECEIVED_KEY, message);
+          renderMailLists();
+          // confirm storage in localStorage so the server can prune its spool file
+          if (message.messageId) {
+            fetch('mail/received?email=' + encodeURIComponent(mailIdentity) +
+              '&messageId=' + encodeURIComponent(message.messageId), { method: 'POST' });
+          }
+          const status = document.getElementById('mailStatus');
+          if (status) status.textContent = 'New STARMail received — stored in this browser.';
+        } catch (e) {
+          console.error('Unable to store incoming STARMail', e);
+        }
+      });
+    }
+
+    let composeListing = null;
+
+    function defaultComposeBody(item) {
+      const identity = (localStorage.getItem(MAIL_IDENTITY_KEY) || '').trim();
+      return 'Hi,\n\n' +
+        'I saw your listing on STAR&Car and I am interested:\n\n' +
+        '  Listing #' + item.propertyId + '\n' +
+        '  ' + item.address + '\n' +
+        (item.description ? '  ' + item.description + '\n' : '') +
+        (item.notes ? '  ' + item.notes + '\n' : '') +
+        '\nCould you please share availability, price and the next steps?\n\n' +
+        'Thanks,\n' + (identity || 'A STAR&Car user');
+    }
+
+    function openCompose(item) {
+      composeListing = item;
+      document.getElementById('composeTo').value = item.contactEmail || '';
+      document.getElementById('composeFrom').value = (localStorage.getItem(MAIL_IDENTITY_KEY) || '').trim();
+      document.getElementById('composeSubject').value = 'STAR&Car enquiry — ' + item.address;
+      document.getElementById('composeBody').value = defaultComposeBody(item);
+      document.getElementById('composeListing').textContent =
+        'Listing #' + item.propertyId + ' · ' + item.address;
+      document.getElementById('composeStatus').textContent = '';
+      document.getElementById('composeBackdrop').classList.add('open');
+    }
+
+    function closeCompose() {
+      document.getElementById('composeBackdrop').classList.remove('open');
+    }
+
+    function sendCompose() {
+      const from = document.getElementById('composeFrom').value.trim();
+      const to = document.getElementById('composeTo').value.trim();
+      const subject = document.getElementById('composeSubject').value.trim();
+      const body = document.getElementById('composeBody').value;
+      const statusEl = document.getElementById('composeStatus');
+      if (!from || !to || !subject || !body.trim()) {
+        statusEl.textContent = 'From, To, subject and message are all required.';
+        return;
+      }
+      const message = {
+        listingId: composeListing ? composeListing.propertyId : null,
+        listingAddress: composeListing ? composeListing.address : '',
+        from: from,
+        to: to,
+        subject: subject,
+        body: body,
+        sentAt: new Date().toISOString()
+      };
+      fetch('mail/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(message)
+      })
+        .then(res => {
+          if (!res.ok) throw new Error('Unable to send the message.');
+          return res.json();
+        })
+        .then(result => {
+          message.messageId = result.messageId || message.messageId;
+          message.delivery = result.delivered ? 'delivered' : 'queued';
+          saveMail(MAIL_SENT_KEY, message);
+          localStorage.setItem(MAIL_IDENTITY_KEY, from);
+          subscribeToMail(from);
+          renderMailLists();
+          statusEl.textContent = result.delivered
+            ? 'Sent — pushed to the receiver\'s browser and stored in its localStorage.'
+            : 'Sent — queued in the compressed spool file. It reaches the receiver\'s browser as soon as it comes online. Nothing is dropped.';
+        })
+        .catch(err => {
+          statusEl.textContent = err.message;
+        });
+    }
+
+    /* ── Dark mode ── */
+    function applyTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      try {
+        localStorage.setItem('theme', theme);
+      } catch (e) { /* private mode */ }
+      const toggle = document.getElementById('themeToggle');
+      if (toggle) {
+        toggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+        toggle.title = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+      }
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      applyTheme(current === 'dark' ? 'light' : 'dark');
+    }
+
+    applyTheme((localStorage.getItem('theme') || 'light'));
+
+    (function initStarMail() {
+      const identity = (localStorage.getItem(MAIL_IDENTITY_KEY) || '').trim();
+      document.getElementById('myEmail').value = identity;
+      renderMailLists();
+      if (identity) subscribeToMail(identity);
+    })();
+
+    document.getElementById('saveIdentity').addEventListener('click', function () {
+      const email = document.getElementById('myEmail').value.trim();
+      const status = document.getElementById('mailStatus');
+      if (!email) {
+        status.textContent = 'Enter your email address first.';
+        return;
+      }
+      localStorage.setItem(MAIL_IDENTITY_KEY, email);
+      subscribeToMail(email);
+      status.textContent = 'You are online as ' + email + '. Incoming STARMail is stored in this browser.';
+    });
+
+    document.getElementById('composeSend').addEventListener('click', sendCompose);
+    document.getElementById('composeCancel').addEventListener('click', closeCompose);
+    document.getElementById('composeClose').addEventListener('click', closeCompose);
+    document.getElementById('composeBackdrop').addEventListener('click', function (e) {
+      if (e.target === this) closeCompose();
+    });
 
     openManagementPage();
 </script>
