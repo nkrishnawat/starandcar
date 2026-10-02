@@ -6,6 +6,7 @@ import com.resilientechnology.starandcar.record.StarMailDeviceVO;
 import com.resilientechnology.starandcar.record.StarMailRegisterRequest;
 import com.resilientechnology.starandcar.repository.notification.StarMailRepository;
 import com.resilientechnology.starandcar.service.owner.MailRelayService;
+import com.resilientechnology.starandcar.service.owner.StarMailSpoolService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -31,10 +32,14 @@ public class MailController {
     @Autowired
     StarMailRepository starMailRepository;
 
+    @Autowired
+    StarMailSpoolService spoolService;
+
     /**
-     * Send a STARMail message to a device id. The message is stored for the recipient's
-     * browser (localStorage) and, independently, a copy is e-mailed to the address registered
-     * for that device in MariaDB.
+     * Send a STARMail message to a device id. The message is queued in the STARMail folder on
+     * the server so it reaches the recipient's browser (and localStorage) as soon as that
+     * device is online. In parallel and independently, a copy may be e-mailed to the address
+     * registered for that device - but delivery never depends on it.
      */
     @PostMapping(value = "send", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public MailRelayService.SendResult send(@Valid @RequestBody MailMessageVO mailMessageVO) {
@@ -103,26 +108,12 @@ public class MailController {
                 .orElseGet(() -> new StarMailDeviceVO(deviceId, null, false));
     }
 
-    /** Delivery status for one message, so the UI can show whether the copy went out. */
+    /**
+     * Delivery status for one message, so the sender can see whether the parallel external
+     * e-mail copy went out. Read from the STARMail folder; never required for delivery.
+     */
     @GetMapping(value = "status", produces = MediaType.APPLICATION_JSON_VALUE)
-    public MailMessageVO status(@RequestParam Long messageId) {
-        return starMailRepository.findMessage(messageId)
-                .map(this::toVO)
-                .orElse(null);
-    }
-
-    private MailMessageVO toVO(com.resilientechnology.starandcar.entity.StarMailMessage message) {
-        return MailMessageVO.builder()
-                .messageId(String.valueOf(message.getMessageId()))
-                .listingId(message.getListingId())
-                .listingAddress(message.getListingAddress())
-                .fromDeviceId(message.getSenderDeviceId())
-                .toDeviceId(message.getRecipientDeviceId())
-                .subject(message.getSubject())
-                .body(message.getBody())
-                .delivery(message.getLocalDeliveryStatus())
-                .emailCopyStatus(message.getEmailCopyStatus())
-                .emailCopyDetail(message.getEmailCopyDetail())
-                .build();
+    public MailMessageVO status(@RequestParam String messageId) {
+        return spoolService.findByMessageId(messageId);
     }
 }

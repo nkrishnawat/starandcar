@@ -1166,7 +1166,7 @@
                     <input type="text" id="myLabel" placeholder="Shown to people who STARMail you">
                 </div>
                 <div class="form-row" style="margin:10px 0 0">
-                    <label for="myRegisteredEmail">Registered email (private — copies go here)</label>
+                    <label for="myRegisteredEmail">Registered email (optional — parallel copy only)</label>
                     <input type="email" id="myRegisteredEmail" placeholder="you@example.com">
                 </div>
                 <button class="secondary-btn" id="saveIdentity" type="button">Save &amp; go online</button>
@@ -1682,9 +1682,17 @@
       const timer = setInterval(function () {
         attempts++;
         fetch('mail/status?messageId=' + encodeURIComponent(messageId))
-          .then(function (res) { return res.ok ? res.json() : null; })
+          .then(function (res) {
+            if (!res.ok) return null;
+            return res.text().then(function (text) { return text ? JSON.parse(text) : null; });
+          })
           .then(function (info) {
-            if (!info) return;
+            if (!info) {
+              // already acknowledged and cleared from the folder queue
+              clearInterval(timer);
+              statusEl.textContent = baseText + ' Delivered — the queued copy has been cleared.';
+              return;
+            }
             const state = info.emailCopyStatus;
             const settled = !!state && state !== 'PENDING' && state !== 'QUEUED';
             if (settled || attempts >= 10) {
