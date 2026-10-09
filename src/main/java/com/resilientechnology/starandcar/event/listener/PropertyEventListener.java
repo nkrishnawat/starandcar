@@ -61,17 +61,29 @@ public class PropertyEventListener {
                 .replace("${price}", property.getPrice() != null ? String.valueOf(property.getPrice()) : "N/A")
                 .replace("${address}", property.getAddress() != null ? property.getAddress() : "");
 
-        // 3. Create MIME message for HTML support
+        // 3. Send with this class's e-mail send below - the one proven send path.
+        String subject = "Listing Successful! - Payment Details for Registration - Reference ID #" + Math.random()*100000;
+        sendEmail(property.getEmail(), subject, htmlBody, true);
+    }
+
+    /**
+     * The application's e-mail send - the code that has been working and tested in
+     * production, configured entirely by application.yaml. Anything that needs to post an
+     * e-mail makes one method call here; there is deliberately no second send implementation
+     * anywhere else in the application.
+     */
+    public void sendEmail(String to, String subject, String body, boolean html) throws MessagingException {
+        // 1. Create MIME message for HTML support
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 
-        helper.setTo(property.getEmail()); // Replace with recipient email field
+        helper.setTo(to);
         helper.setFrom(username);
-        helper.setSubject("Listing Successful! - Payment Details for Registration - Reference ID #" + Math.random()*100000);
-        helper.setText(htmlBody, true); // Second parameter 'true' enables HTML parsing
+        helper.setSubject(subject);
+        helper.setText(body, html); // Second parameter 'true' enables HTML parsing
 
-        // 4. Send email
+        // 2. Send email
         mailSender.send(mimeMessage);
-        System.out.printf("Email successfully sent to: %s%n", property.getEmail());
+        System.out.printf("Email successfully sent to: %s%n", to);
     }
 }

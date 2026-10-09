@@ -1,0 +1,16 @@
+[Unit]
+Description=StarAndCar Spring Boot App
+After=network.target
+
+[Service]
+User=appuser
+WorkingDirectory=/opt/starandcar
+Environment=SPRING_PROFILES_ACTIVE=*** MAIL_USERNAME=Star…ail.com
+Environment=MAIL_PASSWORD='***'
+ExecStart=/usr/bin/java -jar /opt/starandcar/starandcar-0.0.1-SNAPSHOT.war
+SuccessExitStatus=143
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

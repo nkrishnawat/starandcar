@@ -27,6 +27,7 @@ public class PropertyRowMapper implements RowMapper<Property> {
                 .notes(rs.getString("notes"))
                 .contactEmail(rs.getString("contact_email"))
                 .contactPhoneNo(rs.getString("contact_phone_no"))
+                .contactDeviceId(rs.getString("contact_device_id"))
                 .manageTokenHash(rs.getString("manage_token_hash"))
                 .build();
 

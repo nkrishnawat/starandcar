@@ -10,6 +10,12 @@ import lombok.Setter;
 public class PropertyDetailVO {
         String address;
         String email;
+        /**
+         * MAC address / DeviceID / MachineID of the owner's browser. This is the only
+         * contact key exposed on the listing - {@code email} is kept for the registered
+         * address used by the independent STARMail carbon copy.
+         */
+        String contactDeviceId;
         String phone;
         String description;
         String notes;
