@@ -785,6 +785,42 @@
           overflow-wrap: anywhere;
         }
 
+        .mail-msg-actions {
+          margin-top: 8px;
+          display: flex;
+          gap: 8px;
+        }
+
+        .mail-delete-btn {
+          font-family: 'Geist Mono', monospace;
+          font-size: 10px;
+          letter-spacing: 0.6px;
+          text-transform: uppercase;
+          color: #dc2626;
+          background: rgba(220, 38, 38, 0.08);
+          border: 0.5px solid rgba(220, 38, 38, 0.28);
+          border-radius: 5px;
+          padding: 4px 10px;
+          cursor: pointer;
+          transition: background 0.12s, color 0.12s;
+        }
+
+        .mail-delete-btn:hover {
+          background: #dc2626;
+          color: #ffffff;
+        }
+
+        html[data-theme='dark'] .mail-delete-btn {
+          color: #fca5a5;
+          background: rgba(248, 113, 113, 0.16);
+          border-color: rgba(248, 113, 113, 0.35);
+        }
+
+        html[data-theme='dark'] .mail-delete-btn:hover {
+          background: #dc2626;
+          color: #ffffff;
+        }
+
         /* ── Theme toggle ── */
         .theme-toggle {
           margin-left: 6px;
@@ -1040,7 +1076,7 @@
         <div class="nav-links">
             <a onclick="showSection('post4rent')" id="nav-publish">Publish</a>
             <span class="nav-sep">|</span>
-            <a onclick="showSection('starmail')" id="nav-starmail">STARMail</a>
+            <a onclick="showSection('starmail')" id="nav-starmail">Inbox</a>
             <span class="nav-sep">|</span>
             <a onclick="showSection('about')" id="nav-about">About</a>
             <button id="themeToggle" class="theme-toggle" type="button" onclick="toggleTheme()" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
@@ -1149,12 +1185,12 @@
         </div>
     </div>
 
-    <!-- STARMail Section (formerly Contact) -->
+    <!-- Inbox Section (formerly Contact) -->
     <div id="starmail" class="section">
         <div class="mail-wrap">
-            <div class="form-title">STARMail</div>
+            <div class="form-title">Inbox</div>
             <div class="mail-identity">
-                <label for="myEmail" class="mail-list-title" style="margin:0; border:none; padding:0">Your STARMail address</label>
+                <label for="myEmail" class="mail-list-title" style="margin:0; border:none; padding:0">Your inbox address</label>
                 <input type="text" id="myEmail" placeholder="you@example.com">
                 <button class="secondary-btn" id="saveIdentity" type="button">Save &amp; go online</button>
                 <span id="mailStatus" class="manage-status"></span>
@@ -1172,11 +1208,11 @@
         </div>
     </div>
 
-    <!-- Compose STARMail (opened from the email icon on a search result) -->
+    <!-- Compose message (opened from the email icon on a search result) -->
     <div class="mail-compose-backdrop" id="composeBackdrop">
-        <div class="mail-compose" role="dialog" aria-modal="true" aria-label="Compose STARMail">
+        <div class="mail-compose" role="dialog" aria-modal="true" aria-label="Compose message">
             <div class="mail-compose-head">
-                <div class="mail-compose-title">✉️ New STARMail</div>
+                <div class="mail-compose-title">✉️ New message</div>
                 <button class="mail-compose-close" id="composeClose" type="button" aria-label="Close">×</button>
             </div>
             <div class="mail-compose-meta" id="composeListing"></div>
@@ -1429,6 +1465,16 @@
       localStorage.setItem(key, JSON.stringify(messages.slice(0, MAIL_LIMIT)));
     }
 
+    /* Delete one message from this browser's mail list - received or sent. */
+    function deleteMail(kind, messageId, index) {
+      const key = kind === 'received' ? MAIL_RECEIVED_KEY : MAIL_SENT_KEY;
+      const remaining = loadMail(key).filter(function (m, i) {
+        return messageId ? (m.messageId || '') !== messageId : i !== index;
+      });
+      try { localStorage.setItem(key, JSON.stringify(remaining)); } catch (e) { /* private mode */ }
+      renderMailLists();
+    }
+
     function escapeHtml(value) {
       return String(value == null ? '' : value)
         .replaceAll('&', '&amp;')
@@ -1438,7 +1484,11 @@
         .replaceAll("'", '&#39;');
     }
 
-    function mailCard(message) {
+    function mailCard(message, kind, index) {
+      // Delete removes this one message from the list, on both the received and the sent side.
+      const actions = `<div class="mail-msg-actions">`
+        + `<button type="button" class="mail-delete-btn" data-delete="${escapeHtml(message.messageId || '')}" data-index="${index}" title="Delete this message">🗑 Delete</button>`
+        + `</div>`;
       return `
         <div class="mail-msg">
           <div class="mail-msg-head">
@@ -1448,6 +1498,7 @@
           <div class="mail-msg-subject">${escapeHtml(message.subject)}</div>
           <div class="mail-msg-body">${escapeHtml(message.body)}</div>
           <div class="mail-msg-route">From ${escapeHtml(message.from)} → To ${escapeHtml(message.to)}</div>
+          ${actions}
         </div>`;
     }
 
@@ -1455,11 +1506,20 @@
       const sent = loadMail(MAIL_SENT_KEY);
       const received = loadMail(MAIL_RECEIVED_KEY);
       document.getElementById('sentList').innerHTML = sent.length
-        ? sent.map(mailCard).join('')
+        ? sent.map((m, i) => mailCard(m, 'sent', i)).join('')
         : '<div class="mail-empty">No sent messages yet.</div>';
       document.getElementById('receivedList').innerHTML = received.length
-        ? received.map(mailCard).join('')
+        ? received.map((m, i) => mailCard(m, 'received', i)).join('')
         : '<div class="mail-empty">No received messages yet.</div>';
+
+      // Bind each delete button: clicking deletes that one message.
+      [['receivedList', 'received'], ['sentList', 'sent']].forEach(function (entry) {
+        document.querySelectorAll('#' + entry[0] + ' [data-delete]').forEach(function (button) {
+          button.addEventListener('click', function () {
+            deleteMail(entry[1], button.getAttribute('data-delete'), Number(button.getAttribute('data-index')));
+          });
+        });
+      });
     }
 
     let mailStream = null;
@@ -1484,9 +1544,9 @@
               '&messageId=' + encodeURIComponent(message.messageId), { method: 'POST' });
           }
           const status = document.getElementById('mailStatus');
-          if (status) status.textContent = 'New STARMail received — stored in this browser.';
+          if (status) status.textContent = 'New message received — stored in this browser.';
         } catch (e) {
-          console.error('Unable to store incoming STARMail', e);
+          console.error('Unable to store incoming mail', e);
         }
       });
     }
@@ -1500,7 +1560,6 @@
         '  Listing #' + item.propertyId + '\n' +
         '  ' + item.address + '\n' +
         (item.description ? '  ' + item.description + '\n' : '') +
-        (item.notes ? '  ' + item.notes + '\n' : '') +
         '\nCould you please share availability, price and the next steps?\n\n' +
         'Thanks,\n' + (identity || 'A STAR&Car user');
     }
@@ -1601,7 +1660,7 @@
       }
       localStorage.setItem(MAIL_IDENTITY_KEY, email);
       subscribeToMail(email);
-      status.textContent = 'You are online as ' + email + '. Incoming STARMail is stored in this browser.';
+      status.textContent = 'You are online as ' + email + '. Incoming mail is stored in this browser.';
     });
 
     document.getElementById('composeSend').addEventListener('click', sendCompose);
