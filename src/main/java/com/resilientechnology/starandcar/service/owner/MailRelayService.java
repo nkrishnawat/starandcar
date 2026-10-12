@@ -2,7 +2,7 @@ package com.resilientechnology.starandcar.service.owner;
 
 import com.resilientechnology.starandcar.event.listener.PropertyEventListener;
 import com.resilientechnology.starandcar.record.MailMessageVO;
-import com.resilientechnology.starandcar.repository.notification.StarMailRepository;
+import com.resilientechnology.starandcar.repository.notification.InboxRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
- * STARMail relay - browser to browser, addressed by MAC address / DeviceID / MachineID.
+ * Inbox relay - browser to browser, addressed by MAC address / DeviceID / MachineID.
  *
  * <p>Delivery needs nothing external. A message is written to a plain Linux folder first
  * (one compressed queue file per device), so it is never lost even when the receiver's device
@@ -56,21 +56,21 @@ public class MailRelayService {
     static final long THROTTLE_WINDOW_MS = 10 * 60 * 1000L;
     static final int THROTTLE_LIMIT = 5;
 
-    private final StarMailSpoolService spoolService;
-    private final StarMailRepository starMailRepository;
+    private final InboxSpoolService spoolService;
+    private final InboxRepository inboxRepository;
     private final PropertyEventListener propertyEventListener;
 
-    public MailRelayService(StarMailSpoolService spoolService, StarMailRepository starMailRepository,
+    public MailRelayService(InboxSpoolService spoolService, InboxRepository inboxRepository,
             PropertyEventListener propertyEventListener) {
         this.spoolService = spoolService;
-        this.starMailRepository = starMailRepository;
+        this.inboxRepository = inboxRepository;
         this.propertyEventListener = propertyEventListener;
     }
 
     // ------------------------------------------------------------------ send
 
     /**
-     * Send a STARMail message to a device.
+     * Send a Inbox message to a device.
      *
      * <p>The message is queued in the Linux folder first, which is what guarantees it survives
      * until the receiver's device is turned on and its browser next asks for its mail.</p>
@@ -107,7 +107,7 @@ public class MailRelayService {
         // then travels as an e-mail to the owner's contact address instead - one method call to
         // the application's proven send (PropertyEventListener, configured in application.yaml).
         if (!routable) {
-            Optional<String> contact = starMailRepository.findContactEmailByPropertyId(message.getListingId());
+            Optional<String> contact = inboxRepository.findContactEmailByPropertyId(message.getListingId());
             if (contact.isPresent()) {
                 sendAsEmail(contact.get(), message);
             } else {
@@ -117,7 +117,7 @@ public class MailRelayService {
         }
 
         String status = !routable
-                ? "This listing has no STARMail device, so there is no browser to route to. "
+                ? "This listing has no Inbox device, so there is no browser to route to. "
                     + "The message was sent as an e-mail to the owner's contact address only."
                 : "Queued in " + spoolService.spoolFile(device).getFileName()
                     + ". The receiver's browser will collect it the next time it asks for its mail.";
@@ -143,7 +143,7 @@ public class MailRelayService {
                 recent.pollFirst();
             }
             if (recent.size() >= THROTTLE_LIMIT) {
-                logger.info("STARMail throttle hit for {}", key);
+                logger.info("Inbox throttle hit for {}", key);
                 throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS,
                         "Too many messages to this recipient. Please wait a few minutes and try again.");
             }
@@ -184,7 +184,7 @@ public class MailRelayService {
     private String emailBody(MailMessageVO message) {
         return message.getBody() + "\n\n---\nFrom device: " + safe(message.getFromDeviceId(), "(unknown)")
                 + (StringUtils.hasText(message.getListingAddress()) ? "\nListing: " + message.getListingAddress() : "")
-                + "\nSent: " + safe(message.getSentAt(), "") + "\nSent from STARMail - Starandcar.com";
+                + "\nSent: " + safe(message.getSentAt(), "") + "\nSent from Inbox - Starandcar.com";
     }
 
     private static String safe(String value, String fallback) {

@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 /**
  * Registers a browser endpoint so it can be addressed by device id.
  */
-public record StarMailRegisterRequest(
+public record InboxRegisterRequest(
         @NotBlank @Size(max = 128) String deviceId,
         @Size(max = 255) String deviceLabel
 ) {

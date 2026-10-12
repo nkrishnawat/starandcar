@@ -30,7 +30,7 @@ public class Property {
     String contactEmail;
 
     /**
-     * StarMail routing key for the listing owner (MAC / DeviceID / MachineID).
+     * Inbox routing key for the listing owner (MAC / DeviceID / MachineID).
      * This is what buyers/guests use to reach the owner's browser; {@code contactEmail}
      * is kept for the registered-address carbon copy only.
      */

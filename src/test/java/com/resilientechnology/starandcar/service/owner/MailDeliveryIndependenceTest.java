@@ -2,7 +2,7 @@ package com.resilientechnology.starandcar.service.owner;
 
 import com.resilientechnology.starandcar.event.listener.PropertyEventListener;
 import com.resilientechnology.starandcar.record.MailMessageVO;
-import com.resilientechnology.starandcar.repository.notification.StarMailRepository;
+import com.resilientechnology.starandcar.repository.notification.InboxRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * STARMail core contract: machine-to-machine delivery with a Linux folder copy, so nothing is
+ * Inbox core contract: machine-to-machine delivery with a Linux folder copy, so nothing is
  * lost while the receiver's device is off.
  *
  * <p>Regression guard for the open issue "when sender sends message nothing arrives".</p>
@@ -32,10 +32,10 @@ class MailDeliveryIndependenceTest {
     private static final String RECIPIENT = "02:bb:55:66:77:88";
 
     @Mock
-    private StarMailSpoolService spoolService;
+    private InboxSpoolService spoolService;
 
     @Mock
-    private StarMailRepository repository;
+    private InboxRepository repository;
 
     @Mock
     private PropertyEventListener propertyEventListener;
@@ -45,7 +45,7 @@ class MailDeliveryIndependenceTest {
     @BeforeEach
     void setUp() {
         mailRelayService = new MailRelayService(spoolService, repository, propertyEventListener);
-        when(spoolService.spoolFile(anyString())).thenReturn(Path.of("/var/lib/starmail/starmail-queue.gz"));
+        when(spoolService.spoolFile(anyString())).thenReturn(Path.of("/var/lib/inbox/inbox-queue.gz"));
     }
 
     private MailMessageVO outgoing() {

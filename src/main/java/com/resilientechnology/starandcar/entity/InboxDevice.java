@@ -7,16 +7,16 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 /**
- * A registered StarMail endpoint.
+ * A registered Inbox endpoint.
  *
- * <p>The routing key for StarMail is the {@code deviceId} (MAC address / DeviceID / MachineID).
+ * <p>The routing key for Inbox is the {@code deviceId} (MAC address / DeviceID / MachineID).
  * The {@code registeredEmail} is kept strictly server-side as the destination for the
  * independent carbon-copy email. It is never exposed through the public API.</p>
  */
 @Getter
 @Setter
 @Builder
-public class StarMailDevice {
+public class InboxDevice {
 
     /** MAC address / DeviceID / MachineID - the only addressing key used to route to a browser. */
     String deviceId;

@@ -2,7 +2,7 @@ package com.resilientechnology.starandcar.service.owner;
 
 import com.resilientechnology.starandcar.event.listener.PropertyEventListener;
 import com.resilientechnology.starandcar.record.MailMessageVO;
-import com.resilientechnology.starandcar.repository.notification.StarMailRepository;
+import com.resilientechnology.starandcar.repository.notification.InboxRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,7 +22,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * A listing published before STARMail device ids existed has no routing key at all.
+ * A listing published before Inbox device ids existed has no routing key at all.
  *
  * <p>It still has a contact address, so the enquiry must not dead-end - it goes out as an
  * e-mail instead, as a single method call to {@code PropertyEventListener}: the application's
@@ -37,10 +37,10 @@ class MailEmailOnlyFallbackTest {
     private static final Long LISTING = 4242L;
 
     @Mock
-    private StarMailSpoolService spoolService;
+    private InboxSpoolService spoolService;
 
     @Mock
-    private StarMailRepository repository;
+    private InboxRepository repository;
 
     @Mock
     private PropertyEventListener propertyEventListener;

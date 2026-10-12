@@ -2,7 +2,7 @@ package com.resilientechnology.starandcar.repository.owner;
 
 import com.resilientechnology.starandcar.entity.Property;
 import com.resilientechnology.starandcar.mapers.PropertyRowMapper;
-import com.resilientechnology.starandcar.repository.notification.StarMailRepository;
+import com.resilientechnology.starandcar.repository.notification.InboxRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,14 +27,14 @@ import static org.mockito.Mockito.when;
  * <em>"why was device id not populating?"</em>.
  *
  * <p>{@code contact_device_id} is stamped from the publishing browser, so a listing created
- * before that field existed - or published by a browser whose STARMail bootstrap never ran -
+ * before that field existed - or published by a browser whose Inbox bootstrap never ran -
  * carries {@code NULL} and the compose window has nothing to address to. The owner's browser
- * fingerprint cannot be recomputed from the row, but if that owner registered a STARMail device
+ * fingerprint cannot be recomputed from the row, but if that owner registered a Inbox device
  * on the address stored in {@code contact_email} the routing key is recoverable from the device
  * registry. These tests pin that repair down.</p>
  */
 @ExtendWith(MockitoExtension.class)
-class PropertyStarMailRoutingTest {
+class PropertyInboxRoutingTest {
 
     private static final String OWNER_DEVICE = "02:aa:11:22:33:44";
 
@@ -42,17 +42,17 @@ class PropertyStarMailRoutingTest {
     private JdbcTemplate jdbcTemplate;
 
     @Mock
-    private StarMailRepository starMailRepository;
+    private InboxRepository inboxRepository;
 
     private PropertyRepository repository;
 
     @BeforeEach
     void setUp() {
         repository = new PropertyRepository(jdbcTemplate);
-        ReflectionTestUtils.setField(repository, "starMailRepository", starMailRepository);
+        ReflectionTestUtils.setField(repository, "inboxRepository", inboxRepository);
     }
 
-    /** A listing published before STARMail device ids existed. */
+    /** A listing published before Inbox device ids existed. */
     private Property legacyListing() {
         return Property.builder()
                 .propertyId(7L)
@@ -76,7 +76,7 @@ class PropertyStarMailRoutingTest {
     @Test
     void aListingPublishedBeforeTheDeviceIdExistedIsRepairedFromTheDeviceRegistry() {
         stubGetById(legacyListing());
-        when(starMailRepository.findDeviceIdByRegisteredEmail("owner@example.com"))
+        when(inboxRepository.findDeviceIdByRegisteredEmail("owner@example.com"))
                 .thenReturn(Optional.of(OWNER_DEVICE));
 
         Property property = repository.getPropertyById(7L);
@@ -88,7 +88,7 @@ class PropertyStarMailRoutingTest {
     @Test
     void searchResultsAreRepairedTheSameWay() {
         stubSearch(List.of(legacyListing()));
-        when(starMailRepository.findDeviceIdByRegisteredEmail("owner@example.com"))
+        when(inboxRepository.findDeviceIdByRegisteredEmail("owner@example.com"))
                 .thenReturn(Optional.of(OWNER_DEVICE));
 
         List<Property> results = repository.searchByText("baker");
@@ -110,7 +110,7 @@ class PropertyStarMailRoutingTest {
 
         assertThat(property.getContactDeviceId()).isEqualTo("02:de:ad:be:ef:01");
         // an already-addressable listing must never be re-pointed at some other device
-        verify(starMailRepository, never()).findDeviceIdByRegisteredEmail(anyString());
+        verify(inboxRepository, never()).findDeviceIdByRegisteredEmail(anyString());
     }
 
     @Test
@@ -126,13 +126,13 @@ class PropertyStarMailRoutingTest {
         Property property = repository.getPropertyById(9L);
 
         assertThat(property.getContactDeviceId()).isNull();
-        verify(starMailRepository, never()).findDeviceIdByRegisteredEmail(anyString());
+        verify(inboxRepository, never()).findDeviceIdByRegisteredEmail(anyString());
     }
 
     @Test
     void aListingIsLeftAloneWhenNobodyRegisteredADeviceOnItsAddress() {
         stubGetById(legacyListing());
-        when(starMailRepository.findDeviceIdByRegisteredEmail("owner@example.com"))
+        when(inboxRepository.findDeviceIdByRegisteredEmail("owner@example.com"))
                 .thenReturn(Optional.empty());
 
         Property property = repository.getPropertyById(7L);

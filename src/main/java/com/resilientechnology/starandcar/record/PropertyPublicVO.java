@@ -35,7 +35,7 @@ public class PropertyPublicVO {
     /** Owner's published contact address - displayed read-only as the carbon-copy destination. */
     String contactEmail;
 
-    /** STARMail routing key for the owner's browser. */
+    /** Inbox routing key for the owner's browser. */
     String contactDeviceId;
 
     String contactPhoneNo;

@@ -22,11 +22,11 @@ import static org.mockito.Mockito.verify;
 
 /**
  * Regression guard for the reported defect: clicking the mail icon on a freshly published
- * listing says <em>"This owner has not activated STARMail yet"</em>.
+ * listing says <em>"This owner has not activated Inbox yet"</em>.
  *
  * <p>Cause: {@code PropertyService.to_entity} built the {@link Property} from the publish form
  * but never copied {@code contactDeviceId} across, so the column was written {@code NULL} on
- * every single publish. No listing was ever reachable on STARMail, regardless of what the
+ * every single publish. No listing was ever reachable on Inbox, regardless of what the
  * browser sent.</p>
  */
 @ExtendWith(MockitoExtension.class)

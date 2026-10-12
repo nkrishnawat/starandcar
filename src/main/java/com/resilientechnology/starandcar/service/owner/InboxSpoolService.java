@@ -1,6 +1,7 @@
 package com.resilientechnology.starandcar.service.owner;
 
 import com.resilientechnology.starandcar.record.MailMessageVO;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,6 +10,7 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.io.BufferedInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -29,7 +31,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 /**
- * STARMail message store - one compressed file per device in a plain Linux folder.
+ * Inbox message store - one compressed file per device in a plain Linux folder.
  *
  * <p>This is the only place a message lives between send and receipt. Nothing external is
  * involved: a message that cannot be pushed straight to the receiver's browser is kept here
@@ -40,18 +42,43 @@ import java.util.zip.GZIPOutputStream;
  * that cannot be read is preserved as {@code .corrupt-<ts>} rather than dropped.</p>
  */
 @Service
-public class StarMailSpoolService {
+public class InboxSpoolService {
 
     private static final JsonMapper MAPPER = JsonMapper.shared();
     private static final TypeReference<List<MailMessageVO>> MESSAGE_LIST = new TypeReference<>() {
     };
 
-    private static final Logger logger = LoggerFactory.getLogger(StarMailSpoolService.class);
+    private static final Logger logger = LoggerFactory.getLogger(InboxSpoolService.class);
 
-    @Value("${file.mail-spool-dir:/tmp/starmail}")
+    @Value("${file.mail-spool-dir:/tmp/inbox}")
     private String spoolDir;
 
     private final Map<String, Object> spoolLocks = new ConcurrentHashMap<>();
+
+    /* One-time move of the pre-rename spool folder, so a deploy mid-conversation cannot
+       strand a queued message. Safe to delete once the old folder is gone everywhere. */
+    @PostConstruct
+    void migrateLegacySpoolDir() {
+        Path legacy = Paths.get("/tmp/starmail");
+        Path current = Paths.get(spoolDir);
+        if (legacy.equals(current) || !Files.isDirectory(legacy)) return;
+        try {
+            Files.createDirectories(current);
+            try (var files = Files.list(legacy)) {
+                files.forEach(file -> {
+                    String name = file.getFileName().toString();
+                    if (!name.endsWith(".gz") && !name.contains(".corrupt-")) return;
+                    try {
+                        Files.move(file, current.resolve(name), StandardCopyOption.REPLACE_EXISTING);
+                    } catch (IOException e) {
+                        logger.warn("Could not move legacy spool file {}", file, e);
+                    }
+                });
+            }
+        } catch (IOException e) {
+            logger.warn("Could not scan legacy spool dir {}", legacy, e);
+        }
+    }
 
     /** Queue a message for a device. This is what keeps it safe while the receiver is off. */
     public void append(String deviceId, MailMessageVO message) {
@@ -112,7 +139,7 @@ public class StarMailSpoolService {
         if (safe.length() > 40) {
             safe = safe.substring(0, 40);
         }
-        return Paths.get(spoolDir, "starmail-" + safe + "-" + sha256(address).substring(0, 10) + ".gz");
+        return Paths.get(spoolDir, "inbox-" + safe + "-" + sha256(address).substring(0, 10) + ".gz");
     }
 
     private void writeSpool(String deviceId, List<MailMessageVO> messages) {
@@ -133,7 +160,7 @@ public class StarMailSpoolService {
                 Files.move(temp, file, StandardCopyOption.REPLACE_EXISTING);
             }
         } catch (Exception e) {
-            throw new IllegalStateException("Unable to queue the STARMail message in " + file
+            throw new IllegalStateException("Unable to queue the Inbox message in " + file
                     + " - the message was rejected rather than silently dropped", e);
         }
     }
@@ -147,7 +174,7 @@ public class StarMailSpoolService {
             return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
                     .digest(value.getBytes(StandardCharsets.UTF_8)));
         } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("Unable to name the STARMail spool file", e);
+            throw new IllegalStateException("Unable to name the Inbox spool file", e);
         }
     }
 }

@@ -22,7 +22,7 @@ public class PropertyController {
 
     /**
      * Public search. Returns {@link PropertyPublicVO} so the owner's e-mail address is never
-     * exposed - listings are contacted through STARMail by device id instead.
+     * exposed - listings are contacted through Inbox by device id instead.
      */
     @GetMapping(value = { "search/{text}" }, produces = "application/json")
     public List<PropertyPublicVO> search(@PathVariable(value = "text", required = false) String text) {

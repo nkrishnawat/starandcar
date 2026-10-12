@@ -2,7 +2,7 @@ package com.resilientechnology.starandcar.repository.owner;
 
 import com.resilientechnology.starandcar.entity.Property;
 import com.resilientechnology.starandcar.mapers.PropertyRowMapper;
-import com.resilientechnology.starandcar.repository.notification.StarMailRepository;
+import com.resilientechnology.starandcar.repository.notification.InboxRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -21,7 +21,7 @@ public class PropertyRepository {
 
     /** Reverse lookup of the routing key for listings published before the device id existed. */
     @Autowired
-    private StarMailRepository starMailRepository;
+    private InboxRepository inboxRepository;
 
     public PropertyRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -33,9 +33,9 @@ public class PropertyRepository {
     }
 
     /**
-     * StarMail addressing key for the listing owner.
+     * Inbox addressing key for the listing owner.
      *
-     * <p>StarMail routes by MAC address / DeviceID / MachineID rather than by e-mail, so each
+     * <p>Inbox routes by MAC address / DeviceID / MachineID rather than by e-mail, so each
      * listing needs a device id to be reachable on. The registered e-mail stays in
      * {@code contact_email} and is only used server-side for the carbon-copy delivery.</p>
      */
@@ -45,25 +45,25 @@ public class PropertyRepository {
     }
 
     /**
-     * Makes sure every property that comes back from this repository carries a STARMail routing
+     * Makes sure every property that comes back from this repository carries a Inbox routing
      * key whenever one can be established.
      *
      * <p>{@code contact_device_id} is written at publish time from the publishing browser, so any
      * listing created before that field existed - or published by a browser that never ran the
-     * STARMail bootstrap - has it {@code NULL}. A {@code NULL} routing key means the compose window
+     * Inbox bootstrap - has it {@code NULL}. A {@code NULL} routing key means the compose window
      * has nothing to address to, which is exactly the empty-recipient bug. The owner's browser
-     * fingerprint cannot be recomputed from the row, but if that owner registered a STARMail device
+     * fingerprint cannot be recomputed from the row, but if that owner registered a Inbox device
      * on the address stored in {@code contact_email} the key can be recovered from the device
      * registry instead of being left blank.</p>
      */
-    private void resolveStarMailRouting(Property property) {
+    private void resolveInboxRouting(Property property) {
         if (property == null || StringUtils.hasText(property.getContactDeviceId())) {
             return;
         }
-        if (!StringUtils.hasText(property.getContactEmail()) || starMailRepository == null) {
+        if (!StringUtils.hasText(property.getContactEmail()) || inboxRepository == null) {
             return;
         }
-        starMailRepository.findDeviceIdByRegisteredEmail(property.getContactEmail())
+        inboxRepository.findDeviceIdByRegisteredEmail(property.getContactEmail())
                 .ifPresent(property::setContactDeviceId);
     }
 
@@ -71,7 +71,7 @@ public class PropertyRepository {
     public Property getPropertyById(Long propertyId) {
         String sql = "SELECT property_id, address, description, notes, contact_email, contact_phone_no, contact_device_id, manage_token_hash FROM PROPERTY WHERE property_id = ?";
         Property property = jdbcTemplate.queryForObject(sql, new Object[]{propertyId}, new PropertyRowMapper(jdbcTemplate));
-        resolveStarMailRouting(property);
+        resolveInboxRouting(property);
         return property;
     }
 
@@ -89,7 +89,7 @@ public class PropertyRepository {
                 new Object[]{searchPattern, searchPattern, searchPattern},
                 new PropertyRowMapper(jdbcTemplate)
         );
-        properties.forEach(this::resolveStarMailRouting);
+        properties.forEach(this::resolveInboxRouting);
         return properties;
     }
 
@@ -107,7 +107,7 @@ public class PropertyRepository {
                 new Object[]{zipPattern},
                 new PropertyRowMapper(jdbcTemplate)
         );
-        properties.forEach(this::resolveStarMailRouting);
+        properties.forEach(this::resolveInboxRouting);
         return properties;
     }
 
@@ -163,7 +163,7 @@ public class PropertyRepository {
     }
 
     public void update(Long propertyId, com.resilientechnology.starandcar.record.PropertyDetailVO details) {
-        // COALESCE keeps the STARMail routing key when the management form does not carry it.
+        // COALESCE keeps the Inbox routing key when the management form does not carry it.
         jdbcTemplate.update("""
                 UPDATE PROPERTY
                 SET address = ?, description = ?, notes = ?, contact_email = ?, contact_phone_no = ?,

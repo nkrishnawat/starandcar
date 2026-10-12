@@ -146,9 +146,9 @@ public class PropertyService {
                 .address(propertyDetailVO.getAddress())
                 .contactPhoneNo(propertyDetailVO.getPhone())
                 .contactEmail(propertyDetailVO.getEmail())
-                // STARMail routing key. Without this line the column is written NULL on every
+                // Inbox routing key. Without this line the column is written NULL on every
                 // publish, so no listing is ever reachable and the compose window has nothing to
-                // address to - the reported "this owner has not activated STARMail yet".
+                // address to - the reported "this owner has not activated Inbox yet".
                 .contactDeviceId(propertyDetailVO.getContactDeviceId())
                 .notes(propertyDetailVO.getNotes())
                 .description(propertyDetailVO.getDescription())

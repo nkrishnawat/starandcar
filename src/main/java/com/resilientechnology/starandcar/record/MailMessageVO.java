@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 /**
- * A STARMail message travelling from a sender's browser to a recipient's browser.
+ * A Inbox message travelling from a sender's browser to a recipient's browser.
  *
  * <p>Addressing is done with the <strong>MAC address / DeviceID / MachineID</strong> of the
  * two endpoints - never with e-mail addresses. E-mail is used only as a fallback for listings

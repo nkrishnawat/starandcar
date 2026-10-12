@@ -1,7 +1,7 @@
 package com.resilientechnology.starandcar.repository.notification;
 
-import com.resilientechnology.starandcar.entity.StarMailDevice;
-import com.resilientechnology.starandcar.mapers.StarMailDeviceRowMapper;
+import com.resilientechnology.starandcar.entity.InboxDevice;
+import com.resilientechnology.starandcar.mapers.InboxDeviceRowMapper;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Registry of STARMail endpoints (devices).
+ * Registry of Inbox endpoints (devices).
  *
  * <p>Messages are <em>not</em> kept here - they live in the Linux folder managed by
- * {@code StarMailSpoolService}, which is what lets browser-to-browser delivery work with no
+ * {@code InboxSpoolService}, which is what lets browser-to-browser delivery work with no
  * database and no e-mail at all. This table only holds the mapping from a device id to the
  * registered address used by the optional, parallel external e-mail copy.</p>
  *
@@ -24,19 +24,25 @@ import java.util.Optional;
  * {@code PropertyRepository#ensureManagementColumn}).</p>
  */
 @Repository
-public class StarMailRepository {
+public class InboxRepository {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    public StarMailRepository(JdbcTemplate jdbcTemplate) {
+    public InboxRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
     @PostConstruct
-    void ensureStarMailSchema() {
+    void ensureInboxSchema() {
+        // One-time move of the pre-rename table so already-registered devices survive.
+        try {
+            jdbcTemplate.execute("ALTER TABLE STARMAIL_DEVICE RENAME TO INBOX_DEVICE");
+        } catch (Exception ignored) {
+            // nothing to migrate: already renamed, or a fresh database
+        }
         jdbcTemplate.execute(
-                "CREATE TABLE IF NOT EXISTS STARMAIL_DEVICE (" +
+                "CREATE TABLE IF NOT EXISTS INBOX_DEVICE (" +
                         " device_id VARCHAR(128) PRIMARY KEY," +
                         " device_label VARCHAR(255)," +
                         " registered_email VARCHAR(500)," +
@@ -48,13 +54,13 @@ public class StarMailRepository {
     /** Register (or refresh) a device. The registered e-mail is server-side only. */
     public void upsertDevice(String deviceId, String deviceLabel, String registeredEmail) {
         int updated = jdbcTemplate.update(
-                "UPDATE STARMAIL_DEVICE SET device_label = ?, registered_email = ?, last_seen = CURRENT_TIMESTAMP " +
+                "UPDATE INBOX_DEVICE SET device_label = ?, registered_email = ?, last_seen = CURRENT_TIMESTAMP " +
                         "WHERE device_id = ?",
                 deviceLabel, registeredEmail, deviceId);
 
         if (updated == 0) {
             jdbcTemplate.update(
-                    "INSERT INTO STARMAIL_DEVICE (device_id, device_label, registered_email, registered_date, last_seen) " +
+                    "INSERT INTO INBOX_DEVICE (device_id, device_label, registered_email, registered_date, last_seen) " +
                             "VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
                     deviceId, deviceLabel, registeredEmail);
         }
@@ -67,14 +73,14 @@ public class StarMailRepository {
      *
      * <p>A listing owner registers their contact e-mail on the {@code PROPERTY} row and is
      * addressed afterwards by {@code contact_device_id}. This lets the optional carbon copy
-     * reach them even when they never explicitly registered a StarMail device.</p>
+     * reach them even when they never explicitly registered a Inbox device.</p>
      */
 
     /**
      * Reverse lookup: which device is reachable on this e-mail address?
      *
      * <p>Used to repair listings published before the device id existed - the owner's browser
-     * fingerprint cannot be recomputed from the listing, but if that owner registered a STARMail
+     * fingerprint cannot be recomputed from the listing, but if that owner registered a Inbox
      * device on the same address the routing key can be recovered from here.</p>
      */
     public Optional<String> findDeviceIdByRegisteredEmail(String email) {
@@ -82,7 +88,7 @@ public class StarMailRepository {
             return Optional.empty();
         }
         List<String> ids = jdbcTemplate.query(
-                "SELECT device_id FROM STARMAIL_DEVICE WHERE LOWER(registered_email) = LOWER(?) " +
+                "SELECT device_id FROM INBOX_DEVICE WHERE LOWER(registered_email) = LOWER(?) " +
                         "ORDER BY last_seen DESC",
                 ps -> ps.setString(1, email.trim()),
                 (rs, rowNum) -> rs.getString(1));
@@ -105,19 +111,19 @@ public class StarMailRepository {
     }
 
     /** Address book: device id + label only. Registered e-mail is deliberately not returned. */
-    public List<StarMailDevice> listDevices() {
+    public List<InboxDevice> listDevices() {
         return jdbcTemplate.query(
                 "SELECT device_id, device_label, registered_email, registered_date, last_seen " +
-                        "FROM STARMAIL_DEVICE ORDER BY device_label, device_id",
-                new StarMailDeviceRowMapper());
+                        "FROM INBOX_DEVICE ORDER BY device_label, device_id",
+                new InboxDeviceRowMapper());
     }
 
-    public Optional<StarMailDevice> findDevice(String deviceId) {
-        List<StarMailDevice> devices = jdbcTemplate.query(
+    public Optional<InboxDevice> findDevice(String deviceId) {
+        List<InboxDevice> devices = jdbcTemplate.query(
                 "SELECT device_id, device_label, registered_email, registered_date, last_seen " +
-                        "FROM STARMAIL_DEVICE WHERE device_id = ?",
+                        "FROM INBOX_DEVICE WHERE device_id = ?",
                 ps -> ps.setString(1, deviceId),
-                new StarMailDeviceRowMapper());
+                new InboxDeviceRowMapper());
         return devices.stream().findFirst();
     }
 }

@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>STAR&Car — Short Term Accommodation Rental & Car</title>
+    <title>STAR&Car — Short Term Accommodation Rental & Car</title>
     <meta name="description" content="Discover and publish short-term accommodation rentals, PGs, rooms, and car rentals in Udaipur and beyond. Connect directly with owners via direct inbox messaging without commission." />
     <meta name="keywords" content="short term accommodation rental, car rental, rooms for rent Udaipur, PG Udaipur, stay near Lake Pichola, Gangaur Ghat rooms, car hire Udaipur, STAR&Car" />
     <link rel="canonical" href="https://www.starandcar.com/" />
@@ -63,7 +63,8 @@
         body {
           font-family: 'Geist', system-ui, sans-serif;
           background: #f1f5f9;
-          min-height: 100vh;
+          min-height: 100vh;               /* fallback */
+          min-height: 100dvh;              /* real visible height on phones */
           padding: 8px;
         }
 
@@ -73,6 +74,7 @@
           border: 0.5px solid #1e1e28;
           max-width: 1400px;
           min-height: 96vh;
+          min-height: calc(100dvh - 16px); /* minus body's 8px top + 8px bottom padding */
           margin: 0 auto;
         }
 
@@ -124,7 +126,7 @@
           .nav-sep {
             display: none;
           }
-          #nav-starmail {
+          #nav-inbox {
             display: none;
           }
           #nav-about {
@@ -649,7 +651,7 @@
           color: #4f46e5;
         }
 
-        /* ── STARMail: mail icon + compose box ── */
+        /* ── Inbox: mail icon + compose box ── */
         .mail-icon-btn {
           width: 32px;
           height: 32px;
@@ -829,7 +831,7 @@
           color: rgba(255, 255, 255, 0.88);
         }
 
-        /* ── STARMail: inbox ── */
+        /* ── Inbox ── */
         .mail-wrap {
           max-width: 860px;
         }
@@ -1254,6 +1256,34 @@
           background: linear-gradient(135deg, #4f46e5, #7c5cf6);
           color: #ffffff;
         }
+        /* ── Scroll-fold footer (TradingView-style) ────────────────────────────
+           Folds open as the footer enters the viewport, folds away when you scroll
+           up. Scroll-driven (animation-timeline), so it tracks the finger exactly
+           and reverses perfectly. No JavaScript involved. */
+        .mail-fold {
+          overflow: clip;
+          perspective: 700px;
+          margin: 8px;
+          padding: 14px 18px;
+          background: #0c0c0f;
+          color: #f1f5f9;
+          border-radius: 10px;
+          text-align: center;
+          font-family: 'Geist Mono', monospace;
+          font-variant-numeric: tabular-nums;
+        }
+
+        .mail-fold__text {
+          transform-origin: 50% 0;           /* hinges at the top edge */
+          animation: fold-in linear both;
+          animation-timeline: view();
+          animation-range: entry 0% entry 100%;
+        }
+
+        @keyframes fold-in {
+          from { transform: rotateX(-90deg) scaleY(.4); opacity: 0; }
+          to   { transform: none;                        opacity: 1; }
+        }
     </style>
 </head>
 
@@ -1272,7 +1302,7 @@
         <div class="nav-links">
             <a onclick="showSection('post4rent')" id="nav-publish">Publish</a>
             <span class="nav-sep">|</span>
-            <a onclick="showSection('starmail')" id="nav-starmail">Inbox</a>
+            <a onclick="showSection('inbox')" id="nav-inbox">Inbox</a>
             <span class="nav-sep">|</span>
             <a onclick="showSection('about')" id="nav-about">About</a>
             <button id="themeToggle" class="theme-toggle" type="button" onclick="toggleTheme()" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
@@ -1324,8 +1354,8 @@
                         <input type="text" name="phoneno" placeholder="+91 XXXXX XXXXX">
                     </div>
                 </div>
-                <!-- STARMail routing key: filled from this browser's MAC/DeviceID/MachineID.
-                     Buyers reach the owner through STARMail instead of seeing an email address. -->
+                <!-- Inbox routing key: filled from this browser's MAC/DeviceID/MachineID.
+                     Buyers reach the owner through the inbox instead of seeing an email address. -->
                 <input type="hidden" name="contactDeviceId" id="publishDeviceId">
                 <div class="form-row">
                     <label>Description</label>
@@ -1353,7 +1383,7 @@
             <div class="form-title">Manage listing</div>
             <p id="manageIntro" class="about-text" style="text-align:left">Update your listing details or remove it from STAR&Car.</p>
             <form id="manageForm">
-                <!-- Preserves the STARMail routing key across edits. -->
+                <!-- Preserves the inbox routing key across edits. -->
                 <input type="hidden" name="contactDeviceId" id="manageDeviceId">
                 <div class="form-row">
                     <label>Address</label>
@@ -1387,7 +1417,7 @@
     </div>
 
     <!-- Inbox Section (formerly Contact) -->
-    <div id="starmail" class="section">
+    <div id="inbox" class="section">
         <div class="mail-wrap">
             <div class="form-title">Inbox</div>
             <div class="mail-identity">
@@ -1459,6 +1489,11 @@
         </div>
     </div>
 
+    <!-- Scroll-fold footer line: live inbox counts, folds with the scroll. -->
+    <div class="mail-fold">
+        <div class="mail-fold__text" id="mailFooterLine">Inbox Total 0 :: Received 0 :: Sent 0</div>
+    </div>
+
 </div>
 
 <script>
@@ -1467,8 +1502,9 @@
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
       document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
       document.getElementById(sectionId).classList.add('active');
-      const map = { post4rent: 'nav-publish', starmail: 'nav-starmail', about: 'nav-about' };
+      const map = { post4rent: 'nav-publish', inbox: 'nav-inbox', about: 'nav-about' };
       if (map[sectionId]) document.getElementById(map[sectionId]).classList.add('active');
+      if (sectionId === 'inbox') markAllRead();   // opening the Inbox counts as reading it
     }
 
     function searchText() {
@@ -1539,7 +1575,7 @@
         // A listing published before device ids existed has none on the row. The management
         // link is the owner's credential, so whoever holds it is the owner - stamp this
         // browser's key and the next save repairs the listing, instead of leaving it
-        // unreachable on STARMail for ever.
+        // unreachable through the inbox for ever.
         form.elements.contactDeviceId.value = item.contactDeviceId || getDeviceId();
       }
       form.elements.phoneno.value = item.contactPhoneNo || '';
@@ -1656,16 +1692,29 @@
         .catch(e => console.log('Something went wrong.' + e))
       });
 
-    /* ── STARMail ── */
-    const MAIL_SENT_KEY = 'starmail.sent';
-    const MAIL_RECEIVED_KEY = 'starmail.received';
-    const MAIL_IDENTITY_KEY = 'starmail.identity';   // legacy key from pre-device builds
-    const MAIL_DEVICE_ID_KEY = 'starmail.deviceId';
-    const MAIL_DEVICE_LABEL_KEY = 'starmail.deviceLabel';
+    /* ── Inbox ── */
+    const MAIL_SENT_KEY = 'inbox.sent';
+    const MAIL_RECEIVED_KEY = 'inbox.received';
+    const MAIL_IDENTITY_KEY = 'inbox.identity';   // legacy key from pre-device builds
+    const MAIL_DEVICE_ID_KEY = 'inbox.deviceId';
+    const MAIL_DEVICE_LABEL_KEY = 'inbox.deviceLabel';
+
+    /* One-time move: mail saved under the old pre-rename keys comes along to inbox.*.
+       Delete this block once every returning browser has opened the site again. */
+    (function migrateInboxKeys() {
+      ['inbox.sent', 'inbox.received', 'inbox.identity', 'inbox.deviceId', 'inbox.deviceLabel'].forEach(function (key) {
+        try {
+          const oldKey = key.replace('inbox.', 'starmail.');
+          const legacy = localStorage.getItem(oldKey);
+          if (legacy !== null && localStorage.getItem(key) === null) localStorage.setItem(key, legacy);
+          if (legacy !== null) localStorage.removeItem(oldKey);
+        } catch (e) { /* private mode */ }
+      });
+    })();
     const MAIL_LIMIT = 200;
 
     /* ── Device identity: MAC address / DeviceID / MachineID ──
-       A browser cannot read a real MAC address, so STARMail derives a stable machine id
+       A browser cannot read a real MAC address, so the inbox derives a stable machine id
        from the platform fingerprint and pins it in localStorage. It is the only key used to
        route a message to this browser - no e-mail address is ever used for routing. */
     function hashSeed(seed, offsetBasis) {
@@ -1715,7 +1764,7 @@
     /* Puts this browser's routing key on the publish form. Called on load and again after every
        publish: form.reset() restores each input to its default value, which for this hidden field
        is empty - so without re-stamping it every listing published in the same session went out
-       with no device id and could never be reached on STARMail. */
+       with no device id and could never be reached through the inbox. */
     function stampPublishDeviceId() {
       const field = document.getElementById('publishDeviceId');
       if (field) field.value = getDeviceId();
@@ -1734,6 +1783,38 @@
         .filter(m => !message.messageId || m.messageId !== message.messageId);
       messages.unshift(message);
       localStorage.setItem(key, JSON.stringify(messages.slice(0, MAIL_LIMIT)));
+    }
+
+    /* Opening the Inbox counts as reading it: every received message goes read at once. */
+    function markAllRead() {
+      const list = loadMail(MAIL_RECEIVED_KEY);
+      let changed = false;
+      list.forEach(function (m) { if (!m.read) { m.read = true; changed = true; } });
+      if (changed) {
+        try { localStorage.setItem(MAIL_RECEIVED_KEY, JSON.stringify(list)); } catch (e) { /* private mode */ }
+      }
+      renderMailFooter();
+    }
+
+    function mailCounts() {
+      const received = loadMail(MAIL_RECEIVED_KEY);
+      const sent = loadMail(MAIL_SENT_KEY);
+      return {
+        received: received.length,
+        sent: sent.length,
+        total: received.length + sent.length,
+        unread: received.filter(function (m) { return !m.read; }).length
+      };
+    }
+
+    /* The footer line: new-mail banner while unread mail exists, live totals otherwise. */
+    function renderMailFooter() {
+      const el = document.getElementById('mailFooterLine');
+      if (!el) return;
+      const c = mailCounts();
+      el.textContent = c.unread > 0
+        ? 'You have new mail in Inbox'
+        : 'Inbox Total ' + c.total + ' :: Received ' + c.received + ' :: Sent ' + c.sent;
     }
 
     /* Delete one message from this browser's mail list - received or sent. */
@@ -1803,6 +1884,7 @@
           });
         });
       });
+      renderMailFooter();
     }
 
     let mailDeviceId = '';
@@ -1811,6 +1893,9 @@
 
     /* Store an incoming message in localStorage and tell the server it is safe. */
     function ingestMessage(message) {
+      // A re-delivered message keeps its read state instead of becoming new again.
+      const existing = loadMail(MAIL_RECEIVED_KEY).find(m => m.messageId && m.messageId === message.messageId);
+      message.read = existing ? !!existing.read : false;
       saveMail(MAIL_RECEIVED_KEY, message);
       renderMailLists();
       // confirm storage in localStorage so the server can clear the message body
@@ -1921,7 +2006,7 @@
         statusEl.textContent = 'No way to reach the owner of this listing yet - no mail device and no contact address.';
         sendBtn.disabled = true;
       } else if (!toDeviceId) {
-        // A listing published before STARMail device ids existed has no routing key. There is
+        // A listing published before inbox device ids existed has no routing key. There is
         // still a contact address on it, so the message goes out as an e-mail instead.
         statusEl.textContent = 'This owner has not activated their Inbox - your message will be sent by e-mail only.';
         sendBtn.disabled = false;
@@ -2002,7 +2087,7 @@
 
     applyTheme((localStorage.getItem('theme') || 'light'));
 
-    (function initStarMail() {
+    (function initInbox() {
       const deviceId = getDeviceId();
       const deviceField = document.getElementById('myDeviceId');
       if (deviceField) deviceField.value = deviceId;

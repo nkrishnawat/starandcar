@@ -15,24 +15,24 @@ import java.util.zip.GZIPOutputStream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * The STARMail folder queue - the core of the requirement.
+ * The Inbox folder queue - the core of the requirement.
  *
  * <p>A message that cannot be pushed to the receiver's browser must be kept in a Linux folder
  * until that device is turned on and its browser confirms the message is in localStorage.
  * These tests run against a real directory to prove the copy genuinely lands on disk.</p>
  */
-class StarMailSpoolServiceTest {
+class InboxSpoolServiceTest {
 
     private static final String DEVICE = "02:bb:55:66:77:88";
 
     @TempDir
     Path spoolDir;
 
-    private StarMailSpoolService spool;
+    private InboxSpoolService spool;
 
     @BeforeEach
     void setUp() {
-        spool = new StarMailSpoolService();
+        spool = new InboxSpoolService();
         ReflectionTestUtils.setField(spool, "spoolDir", spoolDir.toString());
     }
 
