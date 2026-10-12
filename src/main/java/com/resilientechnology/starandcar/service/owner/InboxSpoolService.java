@@ -1,7 +1,6 @@
 package com.resilientechnology.starandcar.service.owner;
 
 import com.resilientechnology.starandcar.record.MailMessageVO;
-import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,7 +9,6 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.io.BufferedInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -50,35 +48,10 @@ public class InboxSpoolService {
 
     private static final Logger logger = LoggerFactory.getLogger(InboxSpoolService.class);
 
-    @Value("${file.mail-spool-dir:/tmp/inbox}")
+    @Value("${file.mail-spool-dir:/var/lib/starandcar/spool}")
     private String spoolDir;
 
     private final Map<String, Object> spoolLocks = new ConcurrentHashMap<>();
-
-    /* One-time move of the pre-rename spool folder, so a deploy mid-conversation cannot
-       strand a queued message. Safe to delete once the old folder is gone everywhere. */
-    @PostConstruct
-    void migrateLegacySpoolDir() {
-        Path legacy = Paths.get("/tmp/starmail");
-        Path current = Paths.get(spoolDir);
-        if (legacy.equals(current) || !Files.isDirectory(legacy)) return;
-        try {
-            Files.createDirectories(current);
-            try (var files = Files.list(legacy)) {
-                files.forEach(file -> {
-                    String name = file.getFileName().toString();
-                    if (!name.endsWith(".gz") && !name.contains(".corrupt-")) return;
-                    try {
-                        Files.move(file, current.resolve(name), StandardCopyOption.REPLACE_EXISTING);
-                    } catch (IOException e) {
-                        logger.warn("Could not move legacy spool file {}", file, e);
-                    }
-                });
-            }
-        } catch (IOException e) {
-            logger.warn("Could not scan legacy spool dir {}", legacy, e);
-        }
-    }
 
     /** Queue a message for a device. This is what keeps it safe while the receiver is off. */
     public void append(String deviceId, MailMessageVO message) {

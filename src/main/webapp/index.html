@@ -74,7 +74,7 @@
           border: 0.5px solid #1e1e28;
           max-width: 1400px;
           min-height: 96vh;
-          min-height: calc(100dvh - 16px); /* minus body's 8px top + 8px bottom padding */
+          min-height: calc(100dvh - 16px - 64px); /* viewport minus body padding minus footer */
           margin: 0 auto;
         }
 
@@ -1256,34 +1256,151 @@
           background: linear-gradient(135deg, #4f46e5, #7c5cf6);
           color: #ffffff;
         }
-        /* ── Scroll-fold footer (TradingView-style) ────────────────────────────
-           Folds open as the footer enters the viewport, folds away when you scroll
-           up. Scroll-driven (animation-timeline), so it tracks the finger exactly
-           and reverses perfectly. No JavaScript involved. */
-        .mail-fold {
-          overflow: clip;
-          perspective: 700px;
-          margin: 8px;
-          padding: 14px 18px;
-          background: #0c0c0f;
+        /* ── Sci-fi footer (Mi-style, flat) + TradingView "look first" scroll fold ── */
+        .scifi-footer {
+          width: calc(100% + 16px);        /* full-bleed past the body's 8px padding */
+          margin: 8px -8px 0;
+          height: 56px;
+          display: flex;
+          align-items: center;
+          padding: 0 16px;
+          background: linear-gradient(180deg, #171c28 0%, #10141d 100%);
           color: #f1f5f9;
-          border-radius: 10px;
-          text-align: center;
+          border-radius: 0;                /* no rounded corners, ever */
+          border-top: 1px solid rgba(255, 255, 255, 0.06);
+          overflow: hidden;
           font-family: 'Geist Mono', monospace;
-          font-variant-numeric: tabular-nums;
+          position: relative;
         }
 
-        .mail-fold__text {
-          transform-origin: 50% 0;           /* hinges at the top edge */
-          animation: fold-in linear both;
-          animation-timeline: view();
+        /* Mi-style accent hairline across the top edge */
+        .scifi-footer::before {
+          content: '';
+          position: absolute;
+          top: 0; left: 0; right: 0;
+          height: 1px;
+          background: linear-gradient(90deg,
+            transparent 0%,
+            rgba(255, 105, 0, 0.75) 18%,
+            rgba(255, 105, 0, 0.12) 55%,
+            transparent 100%);
+        }
+
+        .banner-container {
+          position: relative;
+          overflow: hidden;
+          width: 100%;
+          height: 40px;
+          /* named scroll timeline (TradingView look-first pattern) */
+          view-timeline-name: --lookfirst-timeline;
+          view-timeline-axis: block;
+        }
+
+        .banner-content {
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          font-size: 13px;                 /* compact: fits more text */
+          letter-spacing: 0.04em;
+          text-transform: uppercase;
+          transform-origin: top;
+          white-space: nowrap;
+          animation: lookFirstScroll 1ms linear both;
+          animation-timeline: --lookfirst-timeline;
           animation-range: entry 0% entry 100%;
         }
 
-        @keyframes fold-in {
-          from { transform: rotateX(-90deg) scaleY(.4); opacity: 0; }
-          to   { transform: none;                        opacity: 1; }
+        @keyframes lookFirstScroll {
+          0%   { opacity: 0; transform: scaleY(0); }
+          20%  { opacity: 0; }
+          100% { opacity: 1; transform: scaleY(1); }
         }
+
+        .footer-msg {
+          flex: 1 1 auto;
+          min-width: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          transition: opacity .25s ease, transform .25s ease;
+        }
+
+        .footer-msg.swap {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+
+        /* status LED: orange pulse while unread mail waits, dim otherwise */
+        .footer-led {
+          flex: 0 0 auto;
+          width: 6px;
+          height: 6px;
+          background: #3f4452;
+          transition: background .3s ease, box-shadow .3s ease;
+        }
+
+        .footer-led.on {
+          background: #ff6900;
+          box-shadow: 0 0 8px rgba(255, 105, 0, 0.8);
+          animation: ledPulse 1.6s ease-in-out infinite;
+        }
+
+        @keyframes ledPulse {
+          0%, 100% { opacity: 1; }
+          50%      { opacity: .35; }
+        }
+
+        .footer-clock {
+          flex: 0 0 auto;
+          font-size: 11px;
+          letter-spacing: 0.12em;
+          color: #6b7280;
+          border-left: 1px solid rgba(255, 255, 255, 0.08);
+          padding-left: 12px;
+        }
+
+        .footer-actions {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          flex: 0 0 auto;
+        }
+
+        .fbtn {
+          background: transparent;
+          color: #f1f5f9;
+          border: 1px solid #3f4452;
+          border-radius: 0;
+          font-family: inherit;
+          font-size: 11px;
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
+          padding: 4px 10px;
+          cursor: pointer;
+        }
+
+        .fbtn:hover { background: #ff6900; border-color: #ff6900; color: #fff; }
+
+        .finput {
+          background: transparent;
+          border: 1px solid #3f4452;
+          border-radius: 0;
+          color: #f1f5f9;
+          font-family: inherit;
+          font-size: 11px;
+          text-transform: uppercase;
+          padding: 4px 8px;
+          width: 130px;
+        }
+
+        .finput::placeholder { color: #6b7280; text-transform: uppercase; }
+
+        /* ── Search button resilience: input shrinks first; if the label still gets
+           clipped in some browsers, the button falls back to a magnifier icon ── */
+        .search-bar { display: flex; align-items: center; gap: 8px; }
+        .search-bar input { min-width: 0; flex: 1 1 auto; }
+        .search-bar button { flex: 0 0 auto; white-space: nowrap; overflow: hidden; }
     </style>
 </head>
 
@@ -1296,7 +1413,7 @@
 
         <div class="search-bar">
             <input type="text" id="searchID" placeholder="Search by PIN / ZIP, city OR Vehicle Model…">
-            <button onclick="searchText()">Search</button>
+            <button id="searchBtn" onclick="searchText()">Search</button>
         </div>
 
         <div class="nav-links">
@@ -1424,8 +1541,7 @@
                 <label for="myDeviceId" class="mail-list-title" style="margin:0; border:none; padding:0">Your Device ID (MAC / Machine ID)</label>
                 <input type="text" id="myDeviceId" readonly aria-label="Your device id">
                 <div class="form-row" style="margin:10px 0 0">
-                    <label for="myLabel">Display name (optional)</label>
-                    <input type="text" id="myLabel" placeholder="Shown to people who message you">
+                    <input type="text" id="myLabel" placeholder="Display name (optional)" aria-label="Display name (optional)">
                 </div>
                 <button class="secondary-btn" id="saveIdentity" type="button">Save &amp; go online</button>
                 <span id="mailStatus" class="manage-status"></span>
@@ -1489,14 +1605,27 @@
         </div>
     </div>
 
-    <!-- Scroll-fold footer line: live inbox counts, folds with the scroll. -->
-    <div class="mail-fold">
-        <div class="mail-fold__text" id="mailFooterLine">Inbox Total 0 :: Received 0 :: Sent 0</div>
-    </div>
-
 </div>
 
+<!-- ── Sci-fi message footer: full-width, stays at the bottom, folds in on scroll ── -->
+<footer class="scifi-footer">
+    <div class="banner-container">
+        <div class="banner-content">
+            <span class="footer-led" id="footerLed" aria-hidden="true"></span>
+            <span class="footer-msg" id="footerMsg">INBOX TOTAL 0 :: RECEIVED 0 :: SENT 0</span>
+            <span class="footer-actions" id="footerActions">
+                <button class="fbtn" type="button" data-a="YES">YES</button>
+                <button class="fbtn" type="button" data-a="NO">NO</button>
+                <input class="finput" id="footerReply" placeholder="reply…" maxlength="40" aria-label="Short reply">
+            </span>
+            <span class="footer-clock" id="footerClock" aria-hidden="true"></span>
+        </div>
+    </div>
+</footer>
+
 <script>
+    const OWNER_DISPLAY_EMAIL = 'owner@starandcar.com';   // display-only recipient shown in compose
+
     function showSection(sectionId) {
       document.getElementById('results').style.display = 'none';
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -1516,6 +1645,16 @@
       results.style.display = 'table';
 
       const val = document.getElementById('searchID').value;
+
+      // remember this search for the footer feed (last 8, newest first)
+      try {
+        const q = val.trim();
+        if (q) {
+          const rs = JSON.parse(localStorage.getItem('recentSearches') || '[]').filter(s => s !== q);
+          rs.unshift(q);
+          localStorage.setItem('recentSearches', JSON.stringify(rs.slice(0, 8)));
+        }
+      } catch (e) { /* private mode */ }
 
       fetch('/property/search/' + encodeURIComponent(val))
         .then(response => response.json())
@@ -1807,15 +1946,104 @@
       };
     }
 
-    /* The footer line: new-mail banner while unread mail exists, live totals otherwise. */
-    function renderMailFooter() {
-      const el = document.getElementById('mailFooterLine');
-      if (!el) return;
-      const c = mailCounts();
-      el.textContent = c.unread > 0
-        ? 'You have new mail in Inbox'
-        : 'Inbox Total ' + c.total + ' :: Received ' + c.received + ' :: Sent ' + c.sent;
+    /* ── Sci-fi footer: rotating message feed with tiny responses ── */
+    const FOOTER_PROMPTS = [
+      { key: 'car-sold',    text: 'WAS YOUR CAR BYD SOLD?', actions: ['YES', 'NO'] },
+      { key: 'room-rented', text: 'WAS ROOM RENTED?',        actions: ['YES', 'NO'] },
+      { key: 'payment-due', text: 'PAYMENT DUE — 45000 RS',  actions: ['PAID', 'REMIND'] }
+    ];
+
+    function recentSearches(n) {
+      try { return JSON.parse(localStorage.getItem('recentSearches') || '[]').slice(0, n); }
+      catch (e) { return []; }
     }
+
+    function footerItems() {
+      const c = mailCounts();
+      const items = [{
+        key: 'inbox',
+        text: c.unread > 0 ? 'YOU HAVE NEW MAIL IN INBOX'
+          : 'INBOX TOTAL ' + c.total + ' :: RECEIVED ' + c.received + ' :: SENT ' + c.sent,
+        actions: []
+      }];
+      const rs = recentSearches(5);
+      if (rs.length) items.push({ key: 'searches', text: 'PAST SEARCHES — ' + rs.join(' · '), actions: [] });
+      FOOTER_PROMPTS.forEach(function (p) {
+        let answered = null;
+        try { answered = localStorage.getItem('fb:' + p.key); } catch (e) { /* private mode */ }
+        items.push({ key: p.key, text: p.text + (answered ? '  →  ' + answered : ''), actions: answered ? [] : p.actions });
+      });
+      return items;
+    }
+
+    var footerIndex = 0;
+
+    function renderMailFooter() {
+      const msg = document.getElementById('footerMsg');
+      const actions = document.getElementById('footerActions');
+      if (!msg || !actions) return;
+      const items = footerItems();
+      footerIndex = footerIndex % items.length;
+      const item = items[footerIndex];
+      if (msg.textContent !== item.text) {
+        msg.textContent = item.text;
+        if (msg.classList) {          // fade-slide the swap (skipped in headless stubs)
+          msg.classList.add('swap');
+          setTimeout(function () { msg.classList.remove('swap'); }, 20);
+        }
+      }
+      actions.querySelectorAll('.fbtn').forEach(function (b) {
+        b.style.display = item.actions.length ? '' : 'none';
+      });
+      const reply = document.getElementById('footerReply');
+      if (reply) reply.style.display = item.actions.length ? '' : 'none';
+      const led = document.getElementById('footerLed');
+      if (led && led.classList) led.classList.toggle('on', mailCounts().unread > 0);
+      tickFooterClock();
+    }
+
+    function tickFooterClock() {
+      const el = document.getElementById('footerClock');
+      if (!el) return;
+      const d = new Date();
+      el.textContent = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+    }
+    setInterval(tickFooterClock, 30000);
+
+    function footerAnswer(answer) {
+      const items = footerItems();
+      const item = items[footerIndex % items.length];
+      if (item && item.key && item.key !== 'inbox' && item.key !== 'searches') {
+        try { localStorage.setItem('fb:' + item.key, answer); } catch (e) { /* private mode */ }
+      }
+      footerIndex++;
+      renderMailFooter();
+    }
+
+    document.getElementById('footerActions').addEventListener('click', function (e) {
+      const btn = e.target.closest('.fbtn');
+      if (btn && btn.getAttribute('data-a')) footerAnswer(btn.getAttribute('data-a'));
+    });
+    document.getElementById('footerReply').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        footerAnswer((this.value.trim() || 'OK').toUpperCase());
+        this.value = '';
+      }
+    });
+    setInterval(function () { footerIndex++; renderMailFooter(); }, 8000);
+    renderMailFooter();
+
+    /* If the Search button's label gets clipped (some browsers / narrow toolbars),
+       fall back to a magnifying-glass icon so the button still shows. */
+    function fitSearchButton() {
+      const btn = document.getElementById('searchBtn');
+      if (!btn) return;
+      btn.textContent = 'Search';
+      if (btn.clientWidth === 0 || btn.scrollWidth > btn.clientWidth) btn.textContent = '🔍';
+    }
+    window.addEventListener('resize', fitSearchButton);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitSearchButton);
+    fitSearchButton();
 
     /* Delete one message from this browser's mail list - received or sent. */
     function deleteMail(kind, messageId, index) {
@@ -1936,15 +2164,10 @@
 
     let composeListing = null;
 
+    /* Enquiry body: just the viewing availability - no repeated listing content.
+       Every message gets signed with the Inbox display name on send (see sendCompose). */
     function defaultComposeBody(item) {
-      const identity = getDeviceLabel() || getDeviceId();
-      return 'Hi,\n\n' +
-        'I saw your listing on STAR&Car and I am interested:\n\n' +
-        '  Listing #' + item.propertyId + '\n' +
-        '  ' + item.address + '\n' +
-        (item.description ? '  ' + item.description + '\n' : '') +
-        '\nCould you please share availability, price and the next steps?\n\n' +
-        'Thanks,\n' + (identity || 'A STAR&Car user');
+      return 'I am available on weekends after 3 PM. I can come and see the car/room.';
     }
 
     /* ── Reply ──
@@ -1991,7 +2214,9 @@
       const toEmail = (item.contactEmail || '').trim();
 
       document.getElementById('composeTitle').textContent = opts.heading || '✉️ New message';
-      document.getElementById('composeTo').value = opts.toDisplay || toEmail;
+      // Display-only: the sender always sees the owner address. Routing still uses the
+      // real contact e-mail / device id held in composeListing (see sendCompose).
+      document.getElementById('composeTo').value = OWNER_DISPLAY_EMAIL;
       document.getElementById('composeSubject').value =
         opts.subject || ('STAR&Car enquiry — ' + item.address);
       document.getElementById('composeBody').value = opts.body || defaultComposeBody(item);
@@ -2029,6 +2254,9 @@
       const toEmail = composeListing ? (composeListing.contactEmail || '').trim() : '';
       const subject = document.getElementById('composeSubject').value.trim();
       const body = document.getElementById('composeBody').value;
+      // every outgoing message is signed with the Inbox display name (if one is set)
+      const signName = (getDeviceLabel() || '').trim();
+      const signedBody = signName ? body.replace(/\s+$/, '') + '\n\n— ' + signName : body;
       const statusEl = document.getElementById('composeStatus');
       if (!from || !subject || !body.trim() || (!to && !toEmail)) {
         statusEl.textContent = !to && !toEmail
@@ -2043,7 +2271,7 @@
         toDeviceId: to,
         fromLabel: getDeviceLabel(),
         subject: subject,
-        body: body,
+        body: signedBody,
         sentAt: new Date().toISOString()
       };
       fetch('mail/send', {
@@ -2068,11 +2296,14 @@
     }
 
     /* ── Dark mode ── */
-    function applyTheme(theme) {
+    function applyTheme(theme, persist) {
       document.documentElement.setAttribute('data-theme', theme);
-      try {
-        localStorage.setItem('theme', theme);
-      } catch (e) { /* private mode */ }
+      if (persist) {
+        try {
+          localStorage.setItem('theme', theme);
+          localStorage.setItem('themeManual', '1');
+        } catch (e) { /* private mode */ }
+      }
       const toggle = document.getElementById('themeToggle');
       if (toggle) {
         toggle.textContent = theme === 'dark' ? '☀️' : '🌙';
@@ -2082,10 +2313,29 @@
 
     function toggleTheme() {
       const current = document.documentElement.getAttribute('data-theme');
-      applyTheme(current === 'dark' ? 'light' : 'dark');
+      applyTheme(current === 'dark' ? 'light' : 'dark', true);
     }
 
-    applyTheme((localStorage.getItem('theme') || 'light'));
+    /* Default theme follows device time: dark from 5 PM to 5 AM, light otherwise.
+       A manual toggle stores a preference and wins from then on. */
+    function scheduledTheme() {
+      const h = new Date().getHours();
+      return (h >= 17 || h < 5) ? 'dark' : 'light';
+    }
+
+    (function initScheduledTheme() {
+      let manual = null;
+      try { manual = localStorage.getItem('themeManual') ? localStorage.getItem('theme') : null; } catch (e) { /* private mode */ }
+      applyTheme(manual || scheduledTheme(), false);
+      // long-lived tab: follow the schedule when the 12-hour window flips
+      setInterval(function () {
+        let isManual = null;
+        try { isManual = localStorage.getItem('themeManual'); } catch (e) { /* private mode */ }
+        if (isManual) return;
+        const want = scheduledTheme();
+        if ((document.documentElement.getAttribute('data-theme') || 'light') !== want) applyTheme(want, false);
+      }, 60000);
+    })();
 
     (function initInbox() {
       const deviceId = getDeviceId();
