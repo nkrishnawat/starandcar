@@ -1483,7 +1483,7 @@
                     </div>
                     <div class="form-row">
                         <label>Phone</label>
-                        <input type="text" name="phoneno" placeholder="+91 XXXXX XXXXX">
+                        <input type="text" name="phoneno" placeholder="Phone number">
                     </div>
                 </div>
                 <!-- Inbox routing key: filled from this browser's MAC/DeviceID/MachineID.
@@ -1528,7 +1528,7 @@
                     </div>
                     <div class="form-row">
                         <label>Phone</label>
-                        <input type="text" name="phoneno" placeholder="+91 XXXXX XXXXX">
+                        <input type="text" name="phoneno" placeholder="Phone number">
                     </div>
                 </div>
                 <div class="form-row">
@@ -1889,6 +1889,57 @@ const HINDI = {
         .catch(error => {
           document.getElementById('manageStatus').textContent = error.message;
         });
+    }
+
+    /* On page load, pre-fill the publish form with the most this browser already knows.
+       The owner's contact details rarely change between listings, so walk the saved
+       private listing links (newest first) and fill every still-empty field from each
+       listing in turn. Fields the visitor has already typed are never overwritten, an
+       expired or deleted listing is simply skipped, and nothing runs in manage mode,
+       where the manage form fills itself. */
+    function prefillPublishForm() {
+      const form = document.getElementById('formId');
+      if (!form || managementParams) return;
+      let links = [];
+      try { links = JSON.parse(localStorage.getItem('publishedLinks') || '[]'); } catch (e) { /* private mode */ }
+      if (!links.length) return;
+
+      /* owner-typed details + the text of the last listing; count and images stay empty */
+      const fields = ['address', 'email', 'phoneno', 'description', 'notes'];
+      const valueFor = function (item, name) {
+        if (name === 'email') return item.contactEmail || '';
+        if (name === 'phoneno') return item.contactPhoneNo || '';
+        return item[name] || '';
+      };
+      const fillIfEmpty = function (item) {
+        let pending = 0;
+        fields.forEach(function (name) {
+          const input = form.elements[name];
+          if (!input) return;
+          const value = valueFor(item, name);
+          if (!input.value && value) input.value = value;
+          if (!input.value) pending++;
+        });
+        return pending;
+      };
+
+      (function next(i) {
+        if (i >= links.length) return;
+        let propertyId = '', token = '';
+        try {
+          const url = new URL(links[i]);
+          propertyId = url.searchParams.get('propertyId') || '';
+          token = url.searchParams.get('token') || '';
+        } catch (e) { /* malformed link - skip it */ }
+        if (!propertyId || !token) { next(i + 1); return; }
+        fetch(`property/manage?propertyId=${encodeURIComponent(propertyId)}&token=${encodeURIComponent(token)}`)
+          .then(res => (res.ok ? res.json() : Promise.reject(new Error('skip'))))
+          .then(item => {
+            if (fillIfEmpty(item) === 0) return;   // every field populated - stop early
+            next(i + 1);
+          })
+          .catch(() => next(i + 1));               // expired link - try the next one
+      })(0);
     }
 
     document.getElementById('formId').addEventListener('submit', function (e) {
@@ -2562,6 +2613,7 @@ const HINDI = {
     });
 
     openManagementPage();
+    prefillPublishForm();
 </script>
 </body>
 
