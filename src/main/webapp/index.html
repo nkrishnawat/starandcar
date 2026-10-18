@@ -1472,6 +1472,12 @@
                 </div>
             </div>
             <form id="formId" enctype="multipart/form-data">
+                <!-- Photos first: picking one drafts the description and owner notes (see aiDraftFromPhoto). -->
+                <div class="form-row">
+                    <label>Upload images</label>
+                    <input type="file" name="files" accept="image/*" multiple>
+                    <div style="font-size:11px;color:#64748b;margin-top:4px">Pick a photo and it drafts the description &amp; notes below for you.</div>
+                </div>
                 <div class="form-row">
                     <label>Address</label>
                     <input type="text" name="address" placeholder="Full street address">
@@ -1500,10 +1506,6 @@
                 <div class="form-row">
                     <label>Available count #</label>
                     <input type="number" name="count" placeholder="0" min="0">
-                </div>
-                <div class="form-row">
-                    <label>Upload images</label>
-                    <input type="file" name="files" multiple>
                 </div>
                 <button type="submit" class="submit-btn">Publish listing</button>
             </form>
@@ -1941,6 +1943,42 @@ const HINDI = {
           .catch(() => next(i + 1));               // expired link - try the next one
       })(0);
     }
+
+    /* Photo → draft listing text: the photo goes from this page straight to the Google
+       Gemini vision API (called from this JS, no new server endpoint) and the reply is
+       populated into Description and Owner Notes in the callback below. Paste your free
+       key from https://aistudio.google.com/apikey into AI_KEY to enable it. */
+    const AI_KEY = ''; // ← paste your Google AI Studio key here
+
+    document.getElementById('formId').elements.files.addEventListener('change', function aiDraftFromPhoto() {
+      const file = this.files[0];
+      if (!file || !AI_KEY) return;
+      const reader = new FileReader();
+      reader.onload = e => fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + AI_KEY, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contents: [{ parts: [
+          { text: 'This photo is for a listing on STAR&Car (short-term stays and cars). Reply with exactly two lines and nothing else.\n'
+              + 'DESCRIPTION: one sentence advertising it, e.g. "Selling 2021 Buick in very good condition, Mileage is 32000 miles (46000 km), Minor scratches on Dashboard. Asking price 21000 USD."\n'
+              + 'NOTES: one sentence in the owner\'s voice, e.g. "You can come and do a test drive, Look at title, registration. I have additional utilities like ambient lighting, toolbox for free. I live near Pasadena."\n'
+              + 'Describe only what is visible in the photo and write ___ where a detail is not visible.' },
+          { inline_data: { mime_type: file.type || 'image/jpeg', data: e.target.result.split(',')[1] } }
+        ] }] })
+      })
+      .then(res => res.json())
+      .then(data => {
+        const out = (((((data || {}).candidates || [])[0] || {}).content || {}).parts || [])
+          .map(p => p.text || '').join('');
+        const form = document.getElementById('formId');
+        const desc = (out.match(/DESCRIPTION:\s*([^\n]+)/i) || [])[1];
+        const notes = (out.match(/NOTES:\s*([^\n]+)/i) || [])[1];
+        if (desc) form.elements.description.value = desc.trim();
+        if (notes) form.elements.notes.value = notes.trim();
+      })
+      .catch(err => alert('Could not draft from photo: ' + (err && err.message ? err.message : err)));
+      reader.readAsDataURL(file);
+    });
+    if (!AI_KEY) console.log('To auto-fill description & notes from photos, paste your Gemini key into AI_KEY in index.html.');
 
     document.getElementById('formId').addEventListener('submit', function (e) {
       e.preventDefault();
