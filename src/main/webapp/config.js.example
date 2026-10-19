@@ -1,0 +1,8 @@
+/* Copy this file to config.js ON THE SERVER (e.g. /var/www/starandcar/config.js) and put your key in it.
+   config.js is git-ignored - never commit a real key.
+
+   Use a plain Gemini key from https://aistudio.google.com/apikey (starts with "AIza").
+   In Google's console, restrict it to the website starandcar.com (HTTP referrer) and to the
+   "Generative Language API" only. Do NOT use a service-account-bound key here: this file is
+   downloaded by every visitor's browser. Without config.js the photo draft is simply off. */
+window.AI_KEY = "PASTE_YOUR_GEMINI_KEY_HERE";

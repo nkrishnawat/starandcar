@@ -1716,6 +1716,8 @@
     </div>
 </footer>
 
+<!-- Optional server-side settings (Gemini key). Not in git: see config.js.example. Missing file = photo draft stays off. -->
+<script src="config.js"></script>
 <script src="hindi.js"></script>
 <script>
 /* ---- INLINE MIRROR of hindi.js (source of truth = hindi.js) ----
@@ -2144,9 +2146,11 @@ const BULGARIAN = {
 
     /* Photo → draft listing text: the photo goes from this page straight to the Google Gemini
        API (plain fetch from this JS, no server endpoint, no model of our own). The google_search tool
-       lets it look up today's market price. Paste a free key from https://aistudio.google.com/apikey
-       into AI_KEY and restrict that key to this site's domain in AI Studio (it is visible in the page). */
-    const AI_KEY = ''; // ← paste your Google AI Studio key here
+       lets it look up today's market price. The key is NOT stored in this file or in git: create
+       config.js next to index.html on the server (see config.js.example) with window.AI_KEY = "...".
+       Use a plain Gemini key from https://aistudio.google.com/apikey and restrict it to this site's
+       domain in Google's console - page visitors can read it. */
+    const AI_KEY = window.AI_KEY || '';
 
     document.getElementById('photoInput').addEventListener('change', function aiDraftFromPhoto() {
       const file = this.files[0], preview = document.getElementById('photoPreview'), status = document.getElementById('photoStatus');
@@ -2182,7 +2186,7 @@ const BULGARIAN = {
       .catch(err => { console.warn('Photo draft failed:', err); status.textContent = tr('Could not draft from the photo. You can type the details yourself.'); });
       reader.readAsDataURL(file);
     });
-    if (!AI_KEY) console.log('To auto-fill description & notes from photos, paste your Gemini key into AI_KEY in index.html.');
+    if (!AI_KEY) console.log('Photo drafting is off: create config.js with window.AI_KEY (see config.js.example).');
 
     /* Contact details. A web page cannot read the phone's own number or e-mail, so: (1) the autocomplete
        hints on the fields let the phone's autofill offer them, (2) the last address/e-mail/phone published

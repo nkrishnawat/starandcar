@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Local/server secrets (see config.js.example) ###
+src/main/webapp/config.js
