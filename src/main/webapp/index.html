@@ -1633,7 +1633,7 @@
             <span class="footer-actions" id="footerActions">
                 <button class="fbtn" type="button" data-a="YES">YES</button>
                 <button class="fbtn" type="button" data-a="NO">NO</button>
-                <button class="theme-toggle fsw" type="button" id="langSw" onclick="langToggle(this)" title="English / Local language">EN</button>
+                <button class="theme-toggle fsw" type="button" id="langSw" onclick="langToggle(this)" title="English / हिंदी / български">EN</button>
                 <button class="theme-toggle fsw" type="button" id="imgSw" onclick="imgViewToggle(this)" title="Image-focused results">TXT</button>
             </span>
             <span class="footer-clock" id="footerClock" aria-hidden="true"></span>
@@ -1646,9 +1646,12 @@
 /* ---- INLINE MIRROR of hindi.js (source of truth = hindi.js) ----
    Runs only when the external file cannot load (e.g. srcdoc preview harnesses). */
 if (!window.applyHindi) {
-/* ── EN → हिंदी (Hindi) word list + tiny swap engine. Fully local, no external service. ──
+/* ── EN → local-language word lists (हिंदी Hindi, български Bulgarian) + tiny swap engine. Fully local, no external service. ──
    Longer phrases are replaced first (runtime sort), so "Publish listing" never
-   half-translates into "प्रकाशित करें listing". State = one key: localStorage 'lang' = 'hi'|'en'.
+   half-translates into "प्रकाशित करें listing". State = one key: localStorage 'lang' = 'en'|'hi'|'bg'.
+   First visit (nothing saved): the visitor's browser/phone language is used if a word list exists for it
+   (e.g. a Bulgarian phone -> 'bg'). The footer switch cycles EN -> HI -> BG and saves the choice.
+   To add a language: add a word list below, then register it in LANGS and LABELS inside the engine.
    index.html carries a guarded MIRROR copy of this file (srcdoc previews cannot load external
    files) - keep the two in sync. localStorage is wrapped in try/catch so this also runs inside srcdoc iframes. */
 
@@ -1726,8 +1729,88 @@ const HINDI = {
   "To": "को"
 };
 
+const BULGARIAN = {
+  /* long sentences first (order here does not matter - the engine sorts by length) */
+  "STAR&Car is a free platform to post and discover short-term accommodation rentals and cars. Whether you're a property owner, professional, student or a traveller, we make it easy.": "STAR&Car е безплатна платформа за публикуване и откриване на краткосрочен наем на жилища и автомобили. Независимо дали сте собственик на имот, професионалист, студент или пътешественик, ние улесняваме процеса.",
+  "Save or send this link. Anyone with it can edit or delete this listing, so treat it like a private key.": "Запазете или изпратете тази връзка. Всеки, който я притежава, може да редактира или изтрие тази обява, затова я пазете като личен ключ.",
+  "No way to reach the owner of this listing yet - no mail device and no contact address.": "Все още няма начин да се свържете със собственика на тази обява – няма пощенско устройство и няма адрес за контакт.",
+  "Lease period, M/F per room, Shared kitchen, # of WashRoom and parking OR Vehicle's condition, sale/rent price…": "Срок на наема, M/F на стая, обща кухня, брой бани и паркинг ИЛИ състояние на превозното средство, цена за продажба/наем…",
+  "Describe the property, amenities, location OR Vehicle's Year/Make/Model…": "Опишете имота, удобствата, местоположението ИЛИ годината/марката/модела на превозното средство…",
+  "Update your listing details or remove it from STAR&Car.": "Актуализирайте данните на обявата си или я премахнете от STAR&Car.",
+  "Add availability, pricing or other useful notes": "Добавете наличност, цени или други полезни бележки",
+  "Search by PIN / ZIP, city OR Vehicle Model…": "Търсене по ПИН / пощенски код, град ИЛИ модел на превозно средство…",
+  "Something went wrong. Please try again.": "Нещо се обърка. Моля, опитайте отново.",
+  "A subject and a message are both required.": "Необходими са както тема, така и съобщение.",
+  "Notes for guests and buyers": "Бележки за гости и купувачи",
+  "Your Device ID (MAC / Machine ID)": "Идентификатор на устройството (MAC / ID на машината)",
+  "— Short Term Accommodation Rental & Car": "— Краткосрочен наем на жилища и автомобили",
+  "Share your feedback or suggestions…": "Споделете мнението или предложенията си…",
+  "Listing published successfully!": "Обявата е публикувана успешно!",
+  "Your private listing link": "Вашата лична връзка към обявата",
+  "Select and copy the link.": "Изберете и копирайте връзката.",
+  "Describe the property or vehicle": "Опишете имота или превозното средство",
+  "Display name (optional)": "Показвано име (по избор)",
+  "Available count #": "Налично количество #",
+  "YOU HAVE NEW MAIL IN INBOX": "ИМАТЕ НОВО СЪОБЩЕНИЕ ВЪВ ВХОДЯЩАТА КУТИЯ",
+  "No received messages yet.": "Все още няма получени съобщения.",
+  "No results found for": "Няма резултати за",
+  "WAS YOUR CAR BYD SOLD?": "ПРОДАДЕНА ЛИ Е ВАШАТА КОЛА BYD?",
+  "No sent messages yet.": "Все още няма изпратени съобщения.",
+  "PAYMENT DUE — 45000 RS": "ДЪЛЖИМО ПЛАЩАНЕ — 45000 RS",
+  "Keep this link safe.": "Пазете тази връзка на сигурно място.",
+  "Save & go online": "Запази и излез онлайн",
+  "WAS ROOM RENTED?": "НАЕТА ЛИ Е СТАЯТА?",
+  "Publish listing": "Публикувай обява",
+  "Notes for guests": "Бележки за гости",
+  "Send feedback": "Изпрати отзив",
+  "Delete listing": "Изтрий обявата",
+  "Upload images": "Качи изображения",
+  "Manage listing": "Управление на обявата",
+  "About STAR&Car": "За STAR&Car",
+  "Full street address": "Пълен адрес",
+  "Changes saved.": "Промените са запазени.",
+  "PAST SEARCHES — ": "МИНАЛИ ТЪРСЕНИЯ — ",
+  "INBOX TOTAL ": "ВХОДЯЩИ ОБЩО ",
+  ":: RECEIVED ": ":: ПОЛУЧЕНИ ",
+  ":: SENT ": ":: ИЗПРАТЕНИ ",
+  "Link copied.": "Връзката е копирана.",
+  "Owner Notes": "Бележки на собственика",
+  "Save changes": "Запази промените",
+  "New message": "Ново съобщение",
+  "Add listing": "Добави обява",
+  "Description": "Описание",
+  "Open editor": "Отвори редактора",
+  "Copy link": "Копирай връзката",
+  "REMIND": "НАПОМНИ",
+  "Received": "Получени",
+  "Publish": "Публикуване",
+  "Address": "Адрес",
+  "Subject": "Тема",
+  "Message": "Съобщение",
+  "Images": "Изображения",
+  "Inbox": "Входящи",
+  "Search": "Търсене",
+  "Email": "Имейл",
+  "About": "За нас",
+  "Phone": "Телефон",
+  "Count": "Брой",
+  "Cancel": "Отказ",
+  "Send": "Изпрати",
+  "Sent": "Изпратени",
+  "YES": "ДА",
+  "PAID": "ПЛАТЕНО",
+  "NO": "НЕ",
+  "To": "До"
+};
+
 (function () {
-  const PAIRS = Object.entries(HINDI).sort(function (a, b) { return b[0].length - a[0].length; });
+  const LANGS  = { hi: HINDI, bg: BULGARIAN };           // code -> word list
+  const LABELS = { en: 'EN', hi: 'HI', bg: 'BG' };       // text on the footer switch
+  const ORDER  = ['en', 'hi', 'bg'];                     // order the switch cycles through
+  const PAIRS  = {};                                     // code -> [[english, local], …] longest first
+  Object.keys(LANGS).forEach(function (code) {
+    PAIRS[code] = Object.entries(LANGS[code]).sort(function (a, b) { return b[0].length - a[0].length; });
+  });
   let cached = null;                       // [[node, original text], …] + [[field, original placeholder], …]
 
   const ls = {
@@ -1735,9 +1818,24 @@ const HINDI = {
     set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) { /* private/srcdoc */ } }
   };
 
+  /* which language to start in: the saved choice wins; otherwise the visitor's phone/browser language
+     (first entry of navigator.languages that is English or has a word list); otherwise English */
+  function initialLang() {
+    const saved = ls.get('lang');
+    if (saved === 'en' || LANGS[saved]) return saved;
+    const prefs = (navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language || 'en'];
+    for (let i = 0; i < prefs.length; i++) {
+      const code = String(prefs[i]).slice(0, 2).toLowerCase();
+      if (code === 'en') return 'en';
+      if (LANGS[code]) return code;
+    }
+    return 'en';
+  }
+  let current = initialLang();
+
   /* translate one string: longest English phrase wins */
-  function tr(text) {
-    PAIRS.forEach(function (p) { text = text.split(p[0]).join(p[1]); });
+  function tr(text, code) {
+    (PAIRS[code] || []).forEach(function (p) { text = text.split(p[0]).join(p[1]); });
     return text;
   }
 
@@ -1752,23 +1850,34 @@ const HINDI = {
     document.querySelectorAll('[placeholder]').forEach(function (el) { cached.fields.push([el, el.placeholder]); });
   }
 
-  /* for strings built at runtime (footer ticker, search messages) */
-  window.toHindi = function (text) { return ls.get('lang') === 'hi' ? tr(text) : text; };
+  /* for strings built at runtime (footer ticker, search messages) - name kept for existing callers */
+  window.toHindi = function (text) { return LANGS[current] ? tr(text, current) : text; };
 
-  /* the EN|LO switch: swap every text node + placeholder, and swap back */
-  window.applyHindi = function (on) {
-    ls.set('lang', on ? 'hi' : 'en');
+  /* swap every text node + placeholder to `code` (always from the English originals); persist = remember the choice */
+  function applyLang(code, persist) {
+    if (code !== 'en' && !LANGS[code]) code = 'en';
+    current = code;
+    if (persist) ls.set('lang', code);
+    document.documentElement.lang = code;   // keeps browsers from offering to translate an already-translated page
     if (!cached) cache();
-    cached.nodes.forEach(function (o) { o[0].nodeValue = on ? tr(o[1]) : o[1]; });
-    cached.fields.forEach(function (o) { if (o[1]) o[0].placeholder = on ? tr(o[1]) : o[1]; });
+    const on = code !== 'en';
+    cached.nodes.forEach(function (o) { o[0].nodeValue = on ? tr(o[1], code) : o[1]; });
+    cached.fields.forEach(function (o) { if (o[1]) o[0].placeholder = on ? tr(o[1], code) : o[1]; });
+    const btn = document.getElementById('langSw');
+    if (btn) btn.textContent = LABELS[code];
+  }
+
+  window.applyLang  = applyLang;
+  window.applyHindi = function (on) { applyLang(on ? 'hi' : 'en', true); };   // kept for existing callers
+  window.cycleLang  = function () {                                          // the footer switch: EN -> HI -> BG -> EN
+    const next = ORDER[(ORDER.indexOf(current) + 1) % ORDER.length];
+    applyLang(next, true);
+    return next;
   };
 
   document.addEventListener('DOMContentLoaded', function () {
-    if (ls.get('lang') === 'hi') {
-      applyHindi(true);
-      const btn = document.getElementById('langSw');
-      if (btn) btn.textContent = 'LO';
-    }
+    if (current !== 'en') applyLang(current, false);   // auto-detected or saved; detection is not saved, so it keeps following the phone
+    else { document.documentElement.lang = 'en'; }
   });
 })();
 
@@ -2269,11 +2378,9 @@ const HINDI = {
     });
     /* ── Footer toggles + published-link history: one small function each ── */
 
-    // #1 EN|LO: the Hindi word list lives in hindi.js - this just flips it (and flips back).
+    // #1 EN|HI|BG: the word lists live in hindi.js - this just cycles through them (and back to English).
     function langToggle(btn) {
-      const on = btn.textContent === 'EN';
-      btn.textContent = on ? 'LO' : 'EN';
-      applyHindi(on);
+      cycleLang();   // also updates the button label
     }
 
     // #2 Image-focused view: a CSS flip on <html> (html.imgview), remembered across visits.
