@@ -9,6 +9,13 @@
 
 const HINDI = {
   /* long sentences first (order here does not matter - the engine sorts by length) */
+  "Could not draft from the photo. You can type the details yourself.": "फ़ोटो से मसौदा नहीं बन सका। आप विवरण स्वयं लिख सकते हैं।",
+  "Draft ready — please check the details and price before publishing.": "मसौदा तैयार है — प्रकाशित करने से पहले विवरण और कीमत जाँच लें।",
+  "We'll draft the description, notes and a price hint from your photo.": "हम आपकी फ़ोटो से विवरण, नोट्स और कीमत का संकेत तैयार कर देंगे।",
+  "Drafting from your photo…": "आपकी फ़ोटो से मसौदा बन रहा है…",
+  "Contact details filled.": "संपर्क विवरण भर दिए गए।",
+  "Use my contact card": "मेरा संपर्क कार्ड उपयोग करें",
+  "Add photos first": "पहले फ़ोटो जोड़ें",
   "STAR&Car is a free platform to post and discover short-term accommodation rentals and cars. Whether you're a property owner, professional, student or a traveller, we make it easy.": "STAR&Car अल्पकालिक आवास किराये और कार पोस्ट करने और खोजने का एक निःशुल्क मंच है। चाहे आप संपत्ति मालिक हों, पेशेवर, छात्र या यात्री — हम इसे आसान बनाते हैं।",
   "Save or send this link. Anyone with it can edit or delete this listing, so treat it like a private key.": "यह लिंक सहेजें या भेजें। इसे पाने वाला कोई भी इस लिस्टिंग को संपादित या हटा सकता है, इसलिए इसे निजी कुंजी की तरह रखें।",
   "No way to reach the owner of this listing yet - no mail device and no contact address.": "इस लिस्टिंग के मालिक तक पहुँचने का अभी कोई रास्ता नहीं - न कोई मेल डिवाइस, न संपर्क पता।",
@@ -83,6 +90,13 @@ const HINDI = {
 
 const BULGARIAN = {
   /* long sentences first (order here does not matter - the engine sorts by length) */
+  "Could not draft from the photo. You can type the details yourself.": "Не успяхме да съставим чернова от снимката. Можете да въведете данните сами.",
+  "Draft ready — please check the details and price before publishing.": "Черновата е готова — проверете данните и цената преди публикуване.",
+  "We'll draft the description, notes and a price hint from your photo.": "Ще съставим описание, бележки и ориентировъчна цена от вашата снимка.",
+  "Drafting from your photo…": "Съставяне от вашата снимка…",
+  "Contact details filled.": "Данните за контакт са попълнени.",
+  "Use my contact card": "Използвай моя контакт",
+  "Add photos first": "Първо добавете снимки",
   "STAR&Car is a free platform to post and discover short-term accommodation rentals and cars. Whether you're a property owner, professional, student or a traveller, we make it easy.": "STAR&Car е безплатна платформа за публикуване и откриване на краткосрочен наем на жилища и автомобили. Независимо дали сте собственик на имот, професионалист, студент или пътешественик, ние улесняваме процеса.",
   "Save or send this link. Anyone with it can edit or delete this listing, so treat it like a private key.": "Запазете или изпратете тази връзка. Всеки, който я притежава, може да редактира или изтрие тази обява, затова я пазете като личен ключ.",
   "No way to reach the owner of this listing yet - no mail device and no contact address.": "Все още няма начин да се свържете със собственика на тази обява – няма пощенско устройство и няма адрес за контакт.",
