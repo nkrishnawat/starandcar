@@ -1,12 +1,15 @@
 package com.resilientechnology.starandcar.service.owner;
 
+import com.resilientechnology.starandcar.event.PropertyCreatedEvent;
 import com.resilientechnology.starandcar.record.PropertyDetailVO;
 import com.resilientechnology.starandcar.entity.Property;
 import com.resilientechnology.starandcar.entity.Room;
 import com.resilientechnology.starandcar.repository.owner.PropertyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import module java.base;
@@ -21,6 +24,9 @@ public class PropertyService {
     @Value("${file.upload-dir}")
     private String uploadDir;
 
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
+
 
     public List<Property> roomsByZip(Long zip) {
         return propertyRepository.listRoomsForZip(zip);
@@ -34,6 +40,7 @@ public class PropertyService {
         return propertyRepository.getPropertyById(propertyID);
     }
 
+    @Transactional // Ensures the method runs in a DB transaction
     public boolean save(PropertyDetailVO propertyDetailVO, List<MultipartFile> files) {
             List<String> fileNames = new ArrayList<>();
 
@@ -57,6 +64,7 @@ public class PropertyService {
 
             if(fileNames !=null && fileNames.size() == files.size()) {
                 propertyRepository.save(to_entity(propertyDetailVO, fileNames));
+                eventPublisher.publishEvent(new PropertyCreatedEvent(propertyDetailVO));
             } else {
                 System.out.printf("Second: Something went wrong with file upload.");
             }
@@ -77,7 +85,7 @@ public class PropertyService {
         return Property.builder()
                 .propertyId(propertyID)
                 .address(propertyDetailVO.getAddress())
-                .contactPhoneNo(propertyDetailVO.getPhoneno())
+                .contactPhoneNo(propertyDetailVO.getPhone())
                 .contactEmail(propertyDetailVO.getEmail())
                 .notes(propertyDetailVO.getNotes())
                 .description(propertyDetailVO.getDescription())
